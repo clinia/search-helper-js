@@ -1,0 +1,8 @@
+{
+    "rules": {
+      "max-len": 0
+    },
+    "extends": [
+      "clinia"
+    ]
+  }

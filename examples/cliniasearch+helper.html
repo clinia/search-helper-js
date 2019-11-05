@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cliniasearch@1.0.0-beta.3/dist/cliniasearchLite.min.js"></script>
+    <script src="../dist/cliniasearch.helper.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/3.2.1/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+
+<div class="container">
+  <div class="search">
+      <input autocomplete="off" class="autocomplete" id="q" placeholder="Search for a product..." type="text" spellcheck="false" autofocus/>
+  </div>
+
+  <div class="hits-wrapper col-md-8">
+    <h1>Results</h1>
+    <div id="hits"></div>
+  </div>
+</div>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        var $inputfield = $("#q");
+        var clinia = window.cliniasearch('TODO', 'test', {
+        protocol: 'http',
+        hosts: {
+          read: ['localhost:5000'],
+          write: ['localhost:5000'],
+        },
+      });
+        var helper = cliniasearchHelper(clinia, 'health_facility', {});
+        helper.on("result", searchCallback);
+        $inputfield.keyup(function(e){
+          helper.setQuery($inputfield.val()).search();
+        });
+        window.toggleRefine = function(facet, value) {
+          helper.toggleRefine(facet, value).search();
+        };
+        helper.search();
+        function searchCallback(content) {
+          if (content.query != $inputfield.val()) {
+            // do not consider out-dated queries
+            return;
+          }
+          if (content.records.length === 0 ) {
+            // no results
+            $('#hits').empty();
+            return;
+          }
+          // Scan all hits and display them
+          var records = '';
+          for (var i = 0; i < content.records.length; ++i) {
+            var record = content.records[i];
+            records += '<div class="hit panel">';
+            for (var attribute in record) {
+              records += '<div class="attribute">' +
+                '<strong>' + attribute + ': </strong>' +
+                record[attribute] +
+                '</div>';
+            }
+            records += '</div>';
+          }
+          $('#hits').html(records);
+        }
+      });
+    </script>
+
+  </body>
+</html>

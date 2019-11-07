@@ -11053,6 +11053,43 @@ CliniaSearchHelper.prototype.getState = function(filters) {
 };
 
 /**
+ * Override the current state without triggering a change event.
+ * Do not use this method unless you know what you are doing. (see the example
+ * for a legit use case)
+ * @param {SearchParameters} newState the whole new state
+ * @return {CliniaSearchHelper}
+ * @example
+ *  helper.on('change', function(state){
+  *    // In this function you might want to find a way to store the state in the url/history
+  *    updateYourURL(state)
+  *  })
+  *  window.onpopstate = function(event){
+  *    // This is naive though as you should check if the state is really defined etc.
+  *    helper.overrideStateWithoutTriggeringChangeEvent(event.state).search()
+  *  }
+  * @chainable
+  */
+ CliniaSearchHelper.prototype.overrideStateWithoutTriggeringChangeEvent = function(newState) {
+   this.state = new SearchParameters(newState);
+   return this;
+ };
+
+/**
+ * Check if an attribute has any numeric, conjunctive, disjunctive or hierarchical filters.
+ * @param {string} attribute the name of the attribute
+ * @return {boolean} true if the attribute is filtered by at least one value
+ */
+CliniaSearchHelper.prototype.hasRefinements = function(attribute) {
+  // there's currently no way to know that the user did call `addNumericRefinement` at some point
+  // thus we cannot distinguish if there once was a numeric refinement that was cleared
+  // so we will return false in every other situations to be consistent
+  // while what we should do here is throw because we did not find the attribute in any type
+  // of refinement
+  return false;
+};
+
+
+/**
  * Get the name of the currently used index.
  * @return {string}
  * @example
@@ -11062,6 +11099,23 @@ CliniaSearchHelper.prototype.getState = function(filters) {
 CliniaSearchHelper.prototype.getIndex = function() {
   return this.state.index;
 };
+
+function getCurrentPage() {
+  return this.state.page;
+}
+
+/**
+ * Get the currently selected page
+ * @deprecated
+ * @return {number} the current page
+ */
+CliniaSearchHelper.prototype.getCurrentPage = getCurrentPage;
+/**
+ * Get the currently selected page
+ * @function
+ * @return {number} the current page
+ */
+CliniaSearchHelper.prototype.getPage = getCurrentPage;
 
 /**
  * Get a parameter of the search by its name. It is possible that a parameter is directly
@@ -11173,6 +11227,10 @@ CliniaSearchHelper.prototype._dispatchCliniaError = function(queryId, err) {
   this.emit('error', err);
 
   if (this._currentNbQueries === 0) this.emit('searchQueueEmpty');
+};
+
+CliniaSearchHelper.prototype.containsRefinement = function(query) {
+  return query;
 };
 
 CliniaSearchHelper.prototype._change = function(newState) {
@@ -11520,7 +11578,7 @@ exports.getQueryStringFromState = function(state, options) {
 },{"./SearchParameters":283,"./SearchParameters/shortener":284,"lodash/bind":210,"lodash/forEach":219,"lodash/invert":227,"lodash/isEmpty":233,"lodash/isPlainObject":242,"lodash/isString":244,"lodash/map":251,"lodash/mapKeys":252,"lodash/mapValues":253,"lodash/pick":261,"qs":276,"qs/lib/utils":279}],291:[function(require,module,exports){
 'use strict';
 
-module.exports = '1.0.0-beta.1';
+module.exports = '1.0.0-beta.4';
 },{}]},{},[1])(1)
 });
 //# sourceMappingURL=cliniasearch.helper.js.map

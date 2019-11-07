@@ -89,7 +89,6 @@ function SearchParameters(newParameters) {
   /**
    * The current page number
    * @member {number}
-   * @see https://www.algolia.com/doc/rest#param-page
    */
   this.page = params.page || 0;
   /**
@@ -98,6 +97,17 @@ function SearchParameters(newParameters) {
    * @member {string}
    */
   this.queryType = params.queryType;
+
+  // Undocumented parameters, still needed otherwise we fail
+  this.offset = params.offset;
+  this.length = params.length;
+
+  var self = this;
+  forOwn(params, function checkForUnknownParameter(paramValue, paramName) {
+    if (SearchParameters.PARAMETERS.indexOf(paramName) === -1) {
+      self[paramName] = paramValue;
+    }
+  });
 }
 
 /**
@@ -323,13 +333,4 @@ SearchParameters.prototype = {
   }
 }
 
-/**
- * Callback used for clearRefinement method
- * @callback SearchParameters.clearCallback
- * @param {OperatorList|FacetList} value the value of the filter
- * @param {string} key the current attribute name
- * @param {string} type `numeric`, `disjunctiveFacet`, `conjunctiveFacet`, `hierarchicalFacet` or `exclude`
- * depending on the type of facet
- * @return {boolean} `true` if the element should be removed. `false` otherwise.
- */
 module.exports = SearchParameters;

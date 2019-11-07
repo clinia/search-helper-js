@@ -11,7 +11,7 @@ test('Search should not mutate the original client response', function(done) {
     })
   };
 
-  var helper = cliniasearchHelper(client, 'test_hotels-node');
+  var helper = cliniasearchHelper(client, 'health_facility');
 
   var originalResponseLength = testData.response.results.length;
 

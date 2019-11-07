@@ -15,18 +15,18 @@ var requestBuilder = {
     // One query for the hits
     queries.push({
       indexName: index,
-      params: requestBuilder._getHitsSearchParams(state)
+      params: requestBuilder._getRecordsSearchParams(state)
     });
 
     return queries;
   },
 
   /**
-   * Build search parameters used to fetch hits
+   * Build search parameters used to fetch records
    * @private
    * @return {object.<string, any>}
    */
-  _getHitsSearchParams: function(state) {
+  _getRecordsSearchParams: function(state) {
     var additionalParams = {}
     return merge(state.getQueryParams(), additionalParams);
   },

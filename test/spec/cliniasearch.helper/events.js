@@ -1,0 +1,106 @@
+'use strict';
+
+var cliniaSearchHelper = require('../../../index');
+
+function makeFakeClient() {
+  return {
+    search: jest.fn(function() {
+      return new Promise(function() {});
+    })
+  };
+}
+
+test('Change events should be emitted as soon as the state change, but search should be triggered (refactored)', function() {
+  var fakeClient = makeFakeClient();
+  var helper = cliniaSearchHelper(fakeClient, 'Index', {
+  });
+
+  var changeEventCount = 0;
+
+  helper.on('change', function() {
+    changeEventCount++;
+  });
+
+  helper.setQuery('a');
+  expect(changeEventCount).toBe(1);
+  expect(fakeClient.search).toHaveBeenCalledTimes(0);
+
+  helper.clearRefinements();
+  expect(changeEventCount).toBe(1);
+  expect(fakeClient.search).toHaveBeenCalledTimes(0);
+
+  helper.search();
+  expect(changeEventCount).toBe(1);
+  expect(fakeClient.search).toHaveBeenCalledTimes(1);
+});
+
+test('Change events should only be emitted for meaningful changes', function() {
+  var fakeClient = makeFakeClient();
+  var helper = cliniaSearchHelper(fakeClient, 'Index', {
+    query: 'a',
+  });
+
+  var changeEventCount = 0;
+
+  helper.on('change', function() {
+    changeEventCount++;
+  });
+
+  helper.setQuery('a');
+  expect(changeEventCount).toBe(0);
+  expect(fakeClient.search).toHaveBeenCalledTimes(0);
+
+  // This is an actual change
+  helper.clearRefinements();
+  expect(changeEventCount).toBe(0);
+  expect(fakeClient.search).toHaveBeenCalledTimes(0);
+
+  helper.clearRefinements();
+  expect(changeEventCount).toBe(0);
+  expect(fakeClient.search).toHaveBeenCalledTimes(0);
+
+  helper.search();
+  expect(changeEventCount).toBe(0);
+  expect(fakeClient.search).toHaveBeenCalledTimes(1);
+});
+
+test('search event should be emitted once when the search is triggered and before the request is sent', function() {
+  var fakeClient = makeFakeClient();
+  var helper = cliniaSearchHelper(fakeClient, 'Index', {});
+
+  var count = 0;
+
+  helper.on('search', function() {
+    count++;
+  });
+
+  helper.setQuery('');
+  expect(count).toBe(0);
+  expect(fakeClient.search).toHaveBeenCalledTimes(0);
+
+  helper.clearRefinements();
+  expect(count).toBe(0);
+  expect(fakeClient.search).toHaveBeenCalledTimes(0);
+
+  helper.search();
+  expect(count).toBe(1);
+  expect(fakeClient.search).toHaveBeenCalledTimes(1);
+});
+
+test('searchOnce event should be emitted once when the search is triggered using searchOnce and before the request is sent', function() {
+  var fakeClient = makeFakeClient();
+  var helper = cliniaSearchHelper(fakeClient, 'Index');
+
+  var count = 0;
+
+  helper.on('searchOnce', function() {
+    count++;
+  });
+
+  expect(count).toBe(0);
+  expect(fakeClient.search).toHaveBeenCalledTimes(0);
+
+  helper.searchOnce({}, function() {});
+  expect(count).toBe(1);
+  expect(fakeClient.search).toHaveBeenCalledTimes(1);
+});

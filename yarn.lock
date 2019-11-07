@@ -2181,10 +2181,10 @@ cli-width@^1.0.1:
   resolved "https://registry.yarnpkg.com/cli-width/-/cli-width-1.1.1.tgz#a4d293ef67ebb7b88d4a4d42c0ccf00c4d1e366d"
   integrity sha1-pNKT72frt7iNSk1CwMzwDE0eNm0=
 
-cliniasearch@1.0.0-beta.4:
-  version "1.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/cliniasearch/-/cliniasearch-1.0.0-beta.4.tgz#1f29cc7eab20d6a89c094935b502bda94e29313b"
-  integrity sha512-ot3din7TZxA0fdKBqtBgUy3I1//3wZ7CkUuhQwbokAfRXwrqdtu1uM8z0r3DnL7JyAK8wTXuJibuRV+ubeP/yw==
+cliniasearch@^1.0.0-beta.6:
+  version "1.0.0-beta.6"
+  resolved "https://registry.yarnpkg.com/cliniasearch/-/cliniasearch-1.0.0-beta.6.tgz#2258887a80a27bbe7089b8928614fa1d71c677bd"
+  integrity sha512-P/x76RWM8Vbs2ApJ40S3OERQpyBfr7jIx5wYXaYEN+nT4GkfohAGNtmFC8HOkY7ZEsjRXmjRjDPYHpFnaZqIVg==
   dependencies:
     agentkeepalive "^2.2.0"
     debug "^2.6.9"

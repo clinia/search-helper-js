@@ -10247,7 +10247,6 @@ function SearchParameters(newParameters) {
   /**
    * The current page number
    * @member {number}
-   * @see https://www.algolia.com/doc/rest#param-page
    */
   this.page = params.page || 0;
   /**
@@ -10256,6 +10255,17 @@ function SearchParameters(newParameters) {
    * @member {string}
    */
   this.queryType = params.queryType;
+
+  // Undocumented parameters, still needed otherwise we fail
+  this.offset = params.offset;
+  this.length = params.length;
+
+  var self = this;
+  forOwn(params, function checkForUnknownParameter(paramValue, paramName) {
+    if (SearchParameters.PARAMETERS.indexOf(paramName) === -1) {
+      self[paramName] = paramValue;
+    }
+  });
 }
 
 /**
@@ -10481,15 +10491,6 @@ SearchParameters.prototype = {
   }
 }
 
-/**
- * Callback used for clearRefinement method
- * @callback SearchParameters.clearCallback
- * @param {OperatorList|FacetList} value the value of the filter
- * @param {string} key the current attribute name
- * @param {string} type `numeric`, `disjunctiveFacet`, `conjunctiveFacet`, `hierarchicalFacet` or `exclude`
- * depending on the type of facet
- * @return {boolean} `true` if the element should be removed. `false` otherwise.
- */
 module.exports = SearchParameters;
 },{"../functions/valToNumber":288,"./RefinementList":281,"./filterState":282,"lodash/defaults":213,"lodash/filter":215,"lodash/find":216,"lodash/forEach":219,"lodash/forOwn":220,"lodash/indexOf":225,"lodash/intersection":226,"lodash/isEmpty":233,"lodash/isEqual":234,"lodash/isFunction":235,"lodash/isNaN":238,"lodash/isString":244,"lodash/isUndefined":247,"lodash/keys":248,"lodash/map":251,"lodash/merge":255,"lodash/omit":257,"lodash/reduce":263,"lodash/trim":272}],284:[function(require,module,exports){
 'use strict';
@@ -10629,7 +10630,7 @@ function SearchResults(state, results) {
    * index where the results come from
    * @member {string}
    */
-  this.index = mainSubResponse.meta.indexName;
+  this.index = mainSubResponse.index;
   /**
    * number of hits per page requested
    * @member {number}
@@ -10639,7 +10640,7 @@ function SearchResults(state, results) {
    * total number of hits of this query on the index
    * @member {number}
    */
-  this.total = mainSubResponse.meta.toal;
+  this.total = mainSubResponse.meta.total;
   /**
    * total number of pages with respect to the number of hits per page and the total number of hits
    * @member {number}
@@ -10649,7 +10650,9 @@ function SearchResults(state, results) {
    * current page
    * @member {number}
    */
-  this.currentPage = mainSubResponse.meta.currentPage;
+  this.page = mainSubResponse.meta.page;
+
+  this._state = state;
 }
 
 module.exports = SearchResults;
@@ -10803,7 +10806,7 @@ CliniaSearchHelper.prototype.search = function() {
  */
 CliniaSearchHelper.prototype.getQuery = function() {
   var state = this.state;
-  return requestBuilder._getHitsSearchParams(state);
+  return requestBuilder._getRecordsSearchParams(state);
 };
 
 /**
@@ -11324,18 +11327,18 @@ var requestBuilder = {
     // One query for the hits
     queries.push({
       indexName: index,
-      params: requestBuilder._getHitsSearchParams(state)
+      params: requestBuilder._getRecordsSearchParams(state)
     });
 
     return queries;
   },
 
   /**
-   * Build search parameters used to fetch hits
+   * Build search parameters used to fetch records
    * @private
    * @return {object.<string, any>}
    */
-  _getHitsSearchParams: function(state) {
+  _getRecordsSearchParams: function(state) {
     var additionalParams = {}
     return merge(state.getQueryParams(), additionalParams);
   },

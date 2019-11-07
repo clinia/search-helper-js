@@ -49,7 +49,7 @@ function SearchResults(state, results) {
    * index where the results come from
    * @member {string}
    */
-  this.index = mainSubResponse.meta.indexName;
+  this.index = mainSubResponse.index;
   /**
    * number of hits per page requested
    * @member {number}
@@ -59,7 +59,7 @@ function SearchResults(state, results) {
    * total number of hits of this query on the index
    * @member {number}
    */
-  this.total = mainSubResponse.meta.toal;
+  this.total = mainSubResponse.meta.total;
   /**
    * total number of pages with respect to the number of hits per page and the total number of hits
    * @member {number}
@@ -69,7 +69,9 @@ function SearchResults(state, results) {
    * current page
    * @member {number}
    */
-  this.currentPage = mainSubResponse.meta.currentPage;
+  this.page = mainSubResponse.meta.page;
+
+  this._state = state;
 }
 
 module.exports = SearchResults;

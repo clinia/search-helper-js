@@ -20,7 +20,7 @@ const packageJson = require('../package.json');
 
 const {showChangelog, getChangelog, updateChangelog} = require('./lib/conventionalChangelog.js');
 
-shell.echo(`Algoliasearch-Helper release script`);
+shell.echo(`Cliniasearch-Helper release script`);
 
 checkEnvironment();
 mergeDevIntoMaster();

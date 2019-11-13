@@ -1,6 +1,6 @@
 {
   "name": "cliniasearch-helper",
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0-beta.5",
   "description": "Helper for implementing advanced search features with clinia",
   "main": "index.js",
   "homepage": "",
@@ -44,7 +44,7 @@
     "babel-preset-es2015": "6.24.1",
     "browserify": "14.5.0",
     "bulkify": "1.4.2",
-    "cliniasearch": "1.0.0-beta.8",
+    "cliniasearch": "1.0.0-beta.9",
     "collect-json": "1.0.8",
     "colors": "1.1.2",
     "conventional-changelog-cli": "1.3.2",
@@ -99,6 +99,6 @@
     "qs": "^6.5.1"
   },
   "peerDependencies": {
-    "cliniasearch": ">= 1.0.0-beta.8"
+    "cliniasearch": ">= 1.0.0-beta.9"
   }
 }

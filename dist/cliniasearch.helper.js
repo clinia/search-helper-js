@@ -9369,7 +9369,7 @@ exports.getQueryStringFromState = function(state, options) {
 },{"./SearchParameters":223,"./SearchParameters/shortener":224,"lodash/bind":172,"lodash/forEach":176,"lodash/invert":182,"lodash/isEmpty":188,"lodash/isPlainObject":195,"lodash/isString":196,"lodash/map":201,"lodash/mapKeys":202,"lodash/mapValues":203,"lodash/pick":207,"qs":218,"qs/lib/utils":221}],230:[function(require,module,exports){
 'use strict';
 
-module.exports = '1.0.0-beta.4';
+module.exports = '1.0.0-beta.5';
 
 },{}]},{},[1])(1)
 });

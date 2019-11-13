@@ -37,7 +37,7 @@ test('no mutating methods should trigger a search', function() {
 
   helper.setQuery('');
   helper.clearRefinements();
-  
+
   expect(client.search).toHaveBeenCalledTimes(0);
 
   helper.search();

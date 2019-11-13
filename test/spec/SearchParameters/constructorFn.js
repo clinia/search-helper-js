@@ -22,7 +22,6 @@ test('Constructor should accept an object with known keys', function() {
 test('Constructor should accept an object with unknown keys', function() {
   var betaConfig = {
     'query': '',
-    'query': '',
     'page': 0,
     'perPage': 10,
     'searchFields': [
@@ -41,7 +40,6 @@ test('Constructor should accept an object with unknown keys', function() {
 test('Factory should accept an object with known keys', function() {
   var legitConfig = {
     'query': '',
-    'query': '',
     'page': 0,
     'perPage': 10,
     'searchFields': [
@@ -57,7 +55,6 @@ test('Factory should accept an object with known keys', function() {
 
 test('Constructor should accept an object with unknown keys', function() {
   var betaConfig = {
-    'query': '',
     'query': '',
     'page': 0,
     'perPage': 10,

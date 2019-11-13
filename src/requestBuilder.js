@@ -27,9 +27,9 @@ var requestBuilder = {
    * @return {object.<string, any>}
    */
   _getRecordsSearchParams: function(state) {
-    var additionalParams = {}
+    var additionalParams = {};
     return merge(state.getQueryParams(), additionalParams);
-  },
+  }
 
 };
 

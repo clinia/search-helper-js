@@ -1,45 +1,45 @@
 'use strict';
 
 var keys = require('lodash/keys');
-var intersection = require('lodash/intersection');
+// var intersection = require('lodash/intersection');
 var forOwn = require('lodash/forOwn');
 var forEach = require('lodash/forEach');
-var filter = require('lodash/filter');
-var map = require('lodash/map');
-var reduce = require('lodash/reduce');
-var omit = require('lodash/omit');
+// var filter = require('lodash/filter');
+// var map = require('lodash/map');
+// var reduce = require('lodash/reduce');
+// var omit = require('lodash/omit');
 var indexOf = require('lodash/indexOf');
 var isNaN = require('lodash/isNaN');
-var isEmpty = require('lodash/isEmpty');
-var isEqual = require('lodash/isEqual');
-var isUndefined = require('lodash/isUndefined');
+// var isEmpty = require('lodash/isEmpty');
+// var isEqual = require('lodash/isEqual');
+// var isUndefined = require('lodash/isUndefined');
 var isString = require('lodash/isString');
-var isFunction = require('lodash/isFunction');
-var find = require('lodash/find');
-var trim = require('lodash/trim');
+// var isFunction = require('lodash/isFunction');
+// var find = require('lodash/find');
+// var trim = require('lodash/trim');
 
-var defaults = require('lodash/defaults');
+// var defaults = require('lodash/defaults');
 var merge = require('lodash/merge');
 
-var valToNumber = require('../functions/valToNumber');
+// var valToNumber = require('../functions/valToNumber');
 
-var filterState = require('./filterState');
+// var filterState = require('./filterState');
 
-var RefinementList = require('./RefinementList');
+// var RefinementList = require('./RefinementList');
 
-/**
- * like _.find but using _.isEqual to be able to use it
- * to find arrays.
- * @private
- * @param {any[]} array array to search into
- * @param {any} searchedValue the value we're looking for
- * @return {any} the searched value or undefined
- */
-function findArray(array, searchedValue) {
-  return find(array, function(currentValue) {
-    return isEqual(currentValue, searchedValue);
-  });
-}
+// /**
+//  * like _.find but using _.isEqual to be able to use it
+//  * to find arrays.
+//  * @private
+//  * @param {any[]} array array to search into
+//  * @param {any} searchedValue the value we're looking for
+//  * @return {any} the searched value or undefined
+//  */
+// function findArray(array, searchedValue) {
+//   return find(array, function(currentValue) {
+//     return isEqual(currentValue, searchedValue);
+//   });
+// }
 
 /**
  * SearchParameters is the data structure that contains all the information
@@ -91,16 +91,31 @@ function SearchParameters(newParameters) {
    * @member {number}
    */
   this.page = params.page || 0;
+
+  /**
+   * Center of the geo search.
+   * @member {string}
+   */
+  this.aroundLatLng = params.aroundLatLng;
+
+  /**
+   * Radius of the geo search.
+   * @member {number}
+   */
+  this.aroundRadius = params.aroundRadius;
+
+  /**
+   * Geo search inside a box.
+   * @member {string}
+   */
+  this.insideBoundingBox = params.insideBoundingBox;
+
   /**
    * How the query should be treated by the search engine.
    * Possible values: prefix_last, prefix_none
    * @member {string}
    */
   this.queryType = params.queryType;
-
-  // Undocumented parameters, still needed otherwise we fail
-  this.offset = params.offset;
-  this.length = params.length;
 
   var self = this;
   forOwn(params, function checkForUnknownParameter(paramValue, paramName) {
@@ -131,6 +146,7 @@ SearchParameters._parseNumbers = function(partialState) {
   var numberKeys = [
     'page',
     'perPage',
+    'aroundRadius'
   ];
 
   forEach(numberKeys, function(k) {
@@ -164,7 +180,7 @@ SearchParameters.make = function makeSearchParameters(newParameters) {
  * @return {Error|null} Error if the modification is invalid, null otherwise
  */
 SearchParameters.validate = function(currentState, parameters) {
-  var params = parameters || {};
+  var params = parameters || {}; // eslint-disable-line
 
   return null;
 };
@@ -181,7 +197,7 @@ SearchParameters.prototype = {
    * - If `function`, means to clear all the refinements that return truthy values.
    * @return {SearchParameters}
    */
-  clearRefinements: function clearRefinements(attribute) {
+  clearRefinements: function clearRefinements(attribute) { // eslint-disable-line
     return this;
   },
   /**
@@ -240,7 +256,7 @@ SearchParameters.prototype = {
 
   managedParameters: [
     'index',
-    'facets',
+    'facets'
   ],
   getQueryParams: function getQueryParams() {
     var managedParameters = this.managedParameters;
@@ -331,6 +347,6 @@ SearchParameters.prototype = {
   toString: function() {
     return JSON.stringify(this, null, 2);
   }
-}
+};
 
 module.exports = SearchParameters;

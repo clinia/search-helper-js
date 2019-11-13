@@ -2,8 +2,6 @@
 
 var cliniasearchHelper = require('../../../index');
 
-var bind = require('lodash/bind');
-
 var fakeClient = {};
 
 test('setChange should change the current page', function() {

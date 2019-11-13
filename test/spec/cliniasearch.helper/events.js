@@ -37,7 +37,7 @@ test('Change events should be emitted as soon as the state change, but search sh
 test('Change events should only be emitted for meaningful changes', function() {
   var fakeClient = makeFakeClient();
   var helper = cliniaSearchHelper(fakeClient, 'Index', {
-    query: 'a',
+    query: 'a'
   });
 
   var changeEventCount = 0;

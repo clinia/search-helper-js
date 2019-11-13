@@ -1,4 +1,4 @@
-  
+
 'use strict';
 
 var forOwn = require('lodash/forOwn');

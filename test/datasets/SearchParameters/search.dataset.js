@@ -24,10 +24,10 @@ function getData() {
         }
       }
     ]
-  }
+  };
 
   var searchParams = new SearchParameters({
-    index: 'health_facility',
+    index: 'health_facility'
   });
 
   var responseHelper = {
@@ -39,8 +39,8 @@ function getData() {
     'perPage': 20,
     'total': 4,
     'numPages': 1,
-    'page': 0,
-  }
+    'page': 0
+  };
 
   return {
     response: response,

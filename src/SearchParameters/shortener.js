@@ -56,7 +56,7 @@ var keys2Short = {
   snippetEllipsisText: 'sET',
   disableExactOnAttributes: 'dEOA',
   enableExactOnSingleWordQuery: 'eEOSWQ'
-}
+};
 
 var short2Keys = invert(keys2Short);
 

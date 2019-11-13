@@ -10,10 +10,10 @@ var inherits = require('./functions/inherits');
 
 var flatten = require('lodash/flatten');
 var forEach = require('lodash/forEach');
-var isEmpty = require('lodash/isEmpty');
+// var isEmpty = require('lodash/isEmpty');
 var map = require('lodash/map');
 
-var url = require('./url');
+// var url = require('./url');
 var version = require('./version');
 
 /**
@@ -27,7 +27,7 @@ var version = require('./version');
   *   console.log('The parameters have changed');
   * });
   */
- 
+
  /**
   * Event triggered when a main search is sent to Clinia
   * @event CliniaSearchHelper#event:search
@@ -50,7 +50,7 @@ var version = require('./version');
   *   console.log('searchOnce sent');
   * });
   */
- 
+
  /**
   * Event triggered when the results are retrieved from Clinia
   * @event CliniaSearchHelper#event:result
@@ -62,7 +62,7 @@ var version = require('./version');
   *   console.log('Search results received');
   * });
   */
- 
+
  /**
   * Event triggered when Clinia sends back an error. For example, if an unknown parameter is
   * used, the error can be caught using this event.
@@ -73,7 +73,7 @@ var version = require('./version');
   *   console.log('Houston we got a problem.');
   * });
   */
- 
+
  /**
   * Event triggered when the queue of queries have been depleted (with any result or outdated queries)
   * @event CliniaSearchHelper#event:searchQueueEmpty
@@ -85,7 +85,7 @@ var version = require('./version');
   *
   * helper.search();
   */
- 
+
 
 /**
  * Initialize a new CliniaSearchHelper
@@ -410,17 +410,17 @@ CliniaSearchHelper.prototype.getState = function(filters) {
   *  }
   * @chainable
   */
- CliniaSearchHelper.prototype.overrideStateWithoutTriggeringChangeEvent = function(newState) {
-   this.state = new SearchParameters(newState);
-   return this;
- };
+CliniaSearchHelper.prototype.overrideStateWithoutTriggeringChangeEvent = function(newState) {
+  this.state = new SearchParameters(newState);
+  return this;
+};
 
 /**
  * Check if an attribute has any numeric, conjunctive, disjunctive or hierarchical filters.
  * @param {string} attribute the name of the attribute
  * @return {boolean} true if the attribute is filtered by at least one value
  */
-CliniaSearchHelper.prototype.hasRefinements = function(attribute) {
+CliniaSearchHelper.prototype.hasRefinements = function(attribute) { // eslint-disable-line
   // there's currently no way to know that the user did call `addNumericRefinement` at some point
   // thus we cannot distinguish if there once was a numeric refinement that was cleared
   // so we will return false in every other situations to be consistent
@@ -586,7 +586,9 @@ CliniaSearchHelper.prototype._change = function(newState) {
  * @return {CliniaSearchHelper}
  */
 CliniaSearchHelper.prototype.clearCache = function() {
-  this.client.clearCache && this.client.clearCache();
+  if (this.client.clearCache) {
+    this.client.clearCache();
+  }
   return this;
 };
 

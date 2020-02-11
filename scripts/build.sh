@@ -8,23 +8,25 @@ if [ $CI == 'true' ]; then
   set -x # debug messages
 fi
 
-bundle='cliniasearch.helper'
+bundle='search.helper'
 
 echo "Build"
 
+mkdir -p dist
+
 browserify index.js \
-  --standalone cliniasearchHelper \
+  --standalone searchHelper \
   --debug | \
-  exorcist dist/cliniasearch.helper.js.map > dist/cliniasearch.helper.js
+  exorcist dist/search.helper.js.map > dist/search.helper.js
 
 echo "..Minify"
 
-uglifyjs dist/cliniasearch.helper.js \
+uglifyjs dist/search.helper.js \
   --mangle \
   --compress=warnings=false \
-  --in-source-map "dist/cliniasearch.helper.js.map" \
-  --source-map "dist/cliniasearch.helper.min.js.map" \
-  --output dist/cliniasearch.helper.min.js
+  --in-source-map "dist/search.helper.js.map" \
+  --source-map "dist/search.helper.min.js.map" \
+  --output dist/search.helper.min.js
 
 echo '..Gzipped file size'
 

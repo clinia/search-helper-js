@@ -1,19 +1,19 @@
 'use strict';
 
-var CliniaSearchHelper = require('./src/cliniasearch.helper');
+var CliniaSearchHelper = require('./src/search.helper');
 
 var SearchParameters = require('./src/SearchParameters');
 var SearchResults = require('./src/SearchResults');
 
 /**
- * The cliniasearchHelper module is the function that will let its
+ * The searchHelper module is the function that will let its
  * contains everything needed to use the Cliniasearch
  * Helper. It is a also a function that instanciate the helper.
  * To use the helper, you also need the Clinia JS client v1.
  * @example
  * //using the UMD build
- * var client = cliniasearch('latency', '6be0576ff61c053d5f9a3225e2a90f76');
- * var helper = cliniasearchHelper(client, 'bestbuy', {
+ * var client = clinia('latency', '6be0576ff61c053d5f9a3225e2a90f76');
+ * var helper = searchHelper(client, 'bestbuy', {
  *   facets: ['shipping'],
  * });
  * helper.on('result', function(result) {
@@ -29,51 +29,43 @@ var SearchResults = require('./src/SearchResults');
  * helper.once('result', updateTheResults);
  * helper.removeListener('result', updateTheResults);
  * helper.removeAllListeners('result');
- * @module cliniasearchHelper
+ * @module searchHelper
  * @param  {CliniaSearch} client an CliniaSearch client
  * @param  {string} index the name of the index to query
  * @param  {SearchParameters|object} opts an object defining the initial config of the search. It doesn't have to be a {SearchParameters}, just an object containing the properties you need from it.
  * @return {CliniaSearchHelper}
  */
-function cliniasearchHelper(client, index, opts) {
+function searchHelper(client, index, opts) {
   return new CliniaSearchHelper(client, index, opts);
 }
 
 /**
  * The version currently used
- * @member module:cliniasearchHelper.version
+ * @member module:searchHelper.version
  * @type {number}
  */
-cliniasearchHelper.version = require('./src/version.js');
+searchHelper.version = require('./src/version.js');
 
 /**
  * Constructor for the Helper.
- * @member module:cliniasearchHelper.CliniaSearchHelper
+ * @member module:searchHelper.CliniaSearchHelper
  * @type {CliniaSearchHelper}
  */
-cliniasearchHelper.CliniaSearchHelper = CliniaSearchHelper;
+searchHelper.CliniaSearchHelper = CliniaSearchHelper;
 
 /**
  * Constructor for the object containing all the parameters of the search.
- * @member module:cliniasearchHelper.SearchParameters
+ * @member module:searchHelper.SearchParameters
  * @type {SearchParameters}
  */
-cliniasearchHelper.SearchParameters = SearchParameters;
+searchHelper.SearchParameters = SearchParameters;
 
 /**
  * Constructor for the object containing the results of the search.
- * @member module:cliniasearchHelper.SearchResults
+ * @member module:searchHelper.SearchResults
  * @type {SearchResults}
  */
-cliniasearchHelper.SearchResults = SearchResults;
+searchHelper.SearchResults = SearchResults;
 
-/**
- * URL tools to generate query string and parse them from/into
- * SearchParameters
- * @member module:cliniasearchHelper.url
- * @type {object} {@link url}
- *
- */
-cliniasearchHelper.url = require('./src/url');
 
-module.exports = cliniasearchHelper;
+module.exports = searchHelper;

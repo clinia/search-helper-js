@@ -2,7 +2,7 @@
 
 var path = require('path');
 var jest = require('jest');
-var cliniasearch = require('cliniasearch');
+var clinia = require('clinia');
 var staticJestConfig = require('../jest.config');
 
 var enableIntegrationTest =
@@ -27,7 +27,7 @@ jest.runCLI(dynamicJestConfig, projectsRootPaths).then(function(response) {
   }
 
   if (enableIntegrationTest) {
-    var client = cliniasearch(
+    var client = clinia(
       process.env.INTEGRATION_TEST_APPID,
       process.env.INTEGRATION_TEST_API_KEY
     );
@@ -35,7 +35,7 @@ jest.runCLI(dynamicJestConfig, projectsRootPaths).then(function(response) {
     client.listIndexes().then(content => {
       content.items
         .map(i => i.name)
-        .filter(n => n.indexOf('_circle-cliniasearch-helper') !== -1)
+        .filter(n => n.indexOf('_circle-search-helper') !== -1)
         .forEach(n => client.deleteIndex(n));
     });
   }

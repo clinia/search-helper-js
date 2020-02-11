@@ -1,15 +1,12 @@
 'use strict';
 
-var cliniasearch = require('cliniasearch');
+var clinia = require('clinia');
 
 function setup(indexName, fn) {
   var appID = process.env.INTEGRATION_TEST_APPID;
   var key = process.env.INTEGRATION_TEST_API_KEY;
 
-  var client = cliniasearch(appID, key, {
-    // all indexing requests must be done in https
-    protocol: 'https:'
-  });
+  var client = clinia(appID, key);
   var index = client.initIndex(indexName);
 
   return index

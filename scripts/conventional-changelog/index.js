@@ -21,14 +21,17 @@ var writerOpts = {
   noteGroupsSort: 'title',
   headerPartial: '{{version}} - {{date}}',
   mainTemplate: `{{> header}}
+
 {{#each commitGroups}}
 {{#each commits}}
 {{> commit root=@root}}
 {{/each}}
 {{/each}}
+
 {{> footer}}
 `,
   commitPartial: ` * {{header}}
+
 {{~!-- commit link --}} {{#if @root.linkReferences~}}
   {{~#if @root.repository}}
     {{~#if @root.host}}
@@ -45,6 +48,7 @@ var writerOpts = {
 {{~else}}
   {{~hash}}
 {{~/if}}
+
 {{~!-- commit references --}}
 {{~#if references~}}
   , closes
@@ -75,6 +79,7 @@ var writerOpts = {
     {{~this.repository}}#{{this.issue}}
   {{~/if}}{{/each}}
 {{~/if}}
+
 `
 };
 

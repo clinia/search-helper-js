@@ -6,11 +6,18 @@ var SearchParameters = require('../../../src/SearchParameters');
 test('Constructor should accept an object with known keys', function() {
   var legitConfig = {
     'query': '',
+    'disjunctiveFacets': [
+      'customerReviewCount',
+      'category',
+      'salePrice_range',
+      'manufacturer'
+    ],
+    'maxValuesPerFacet': 30,
     'page': 0,
-    'perPage': 10,
-    'searchFields': [
-      'name',
-      'services'
+    'hitsPerPage': 10,
+    'facets': [
+      'type',
+      'shipping'
     ]
   };
   var params = new SearchParameters(legitConfig);
@@ -22,11 +29,18 @@ test('Constructor should accept an object with known keys', function() {
 test('Constructor should accept an object with unknown keys', function() {
   var betaConfig = {
     'query': '',
+    'disjunctiveFacets': [
+      'customerReviewCount',
+      'category',
+      'salePrice_range',
+      'manufacturer'
+    ],
+    'maxValuesPerFacet': 30,
     'page': 0,
-    'perPage': 10,
-    'searchFields': [
-      'name',
-      'services'
+    'hitsPerPage': 10,
+    'facets': [
+      'type',
+      'shipping'
     ],
     'betaParameter': true,
     'otherBetaParameter': ['alpha', 'omega']
@@ -37,14 +51,30 @@ test('Constructor should accept an object with unknown keys', function() {
   });
 });
 
+test('Constructor should ignore keys with undefined values', function() {
+  var state = new SearchParameters({
+    query: '',
+    page: undefined
+  });
+
+  expect(state).not.toHaveProperty('page');
+});
+
 test('Factory should accept an object with known keys', function() {
   var legitConfig = {
     'query': '',
+    'disjunctiveFacets': [
+      'customerReviewCount',
+      'category',
+      'salePrice_range',
+      'manufacturer'
+    ],
+    'maxValuesPerFacet': 30,
     'page': 0,
-    'perPage': 10,
-    'searchFields': [
-      'name',
-      'services'
+    'hitsPerPage': 10,
+    'facets': [
+      'type',
+      'shipping'
     ]
   };
   var params = SearchParameters.make(legitConfig);
@@ -53,14 +83,21 @@ test('Factory should accept an object with known keys', function() {
   });
 });
 
-test('Constructor should accept an object with unknown keys', function() {
+test('Factory should accept an object with unknown keys', function() {
   var betaConfig = {
     'query': '',
+    'disjunctiveFacets': [
+      'customerReviewCount',
+      'category',
+      'salePrice_range',
+      'manufacturer'
+    ],
+    'maxValuesPerFacet': 30,
     'page': 0,
-    'perPage': 10,
-    'searchFields': [
-      'name',
-      'services'
+    'hitsPerPage': 10,
+    'facets': [
+      'type',
+      'shipping'
     ],
     'betaParameter': true,
     'otherBetaParameter': ['alpha', 'omega']
@@ -69,4 +106,13 @@ test('Constructor should accept an object with unknown keys', function() {
   forOwn(betaConfig, function(v, k) {
     expect(params[k]).toEqual(v);
   });
+});
+
+test('Factory should ignore keys with undefined values', function() {
+  var state = SearchParameters.make({
+    query: '',
+    page: undefined
+  });
+
+  expect(state).not.toHaveProperty('page');
 });

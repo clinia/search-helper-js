@@ -70,6 +70,7 @@ function createFolderIfNone(folderPath) {
     try {
       fs.mkdirSync(folderPath);
     } catch (e2) {
+      // eslint-disable-next-line no-console
       console.error("can't create folder");
     }
   }

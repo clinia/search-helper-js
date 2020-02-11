@@ -1,45 +1,16 @@
 'use strict';
 
-var keys = require('lodash/keys');
-// var intersection = require('lodash/intersection');
-var forOwn = require('lodash/forOwn');
-var forEach = require('lodash/forEach');
-// var filter = require('lodash/filter');
-// var map = require('lodash/map');
-// var reduce = require('lodash/reduce');
-// var omit = require('lodash/omit');
-var indexOf = require('lodash/indexOf');
-var isNaN = require('lodash/isNaN');
-// var isEmpty = require('lodash/isEmpty');
-// var isEqual = require('lodash/isEqual');
-// var isUndefined = require('lodash/isUndefined');
-var isString = require('lodash/isString');
-// var isFunction = require('lodash/isFunction');
-// var find = require('lodash/find');
-// var trim = require('lodash/trim');
+var merge = require('../functions/merge');
+var omit = require('../functions/omit');
 
-// var defaults = require('lodash/defaults');
-var merge = require('lodash/merge');
+var RefinementList = require('./RefinementList');
 
-// var valToNumber = require('../functions/valToNumber');
+/**
+ * The facet list is the structure used to store the list of values used to
+ * filter a single attribute.
+ * @typedef {string[]} SearchParameters.FacetList
+ */
 
-// var filterState = require('./filterState');
-
-// var RefinementList = require('./RefinementList');
-
-// /**
-//  * like _.find but using _.isEqual to be able to use it
-//  * to find arrays.
-//  * @private
-//  * @param {any[]} array array to search into
-//  * @param {any} searchedValue the value we're looking for
-//  * @return {any} the searched value or undefined
-//  */
-// function findArray(array, searchedValue) {
-//   return find(array, function(currentValue) {
-//     return isEqual(currentValue, searchedValue);
-//   });
-// }
 
 /**
  * SearchParameters is the data structure that contains all the information
@@ -59,68 +30,81 @@ var merge = require('lodash/merge');
  * @see SearchParameters.make
  * @example <caption>SearchParameters of the first query in
 {
-   "query": "",
-   "page": 0,
-   "perPage": 10,
+  "query": "",
+  "maxValuesPerFacet": 30,
+  "page": 0,
+  "perPage": 10,
+  "facets": [
+    "type"
+  ]
 }
  */
 function SearchParameters(newParameters) {
   var params = newParameters ? SearchParameters._parseNumbers(newParameters) : {};
 
-   /**
-   * Targeted index. This parameter is mandatory.
-   * @member {string}
+  /**
+   * This attribute contains the list of all the conjunctive facets
+   * used. This list will be added to requested facets in the
+   * facets attribute sent to clinia.
+   * @member {string[]}
    */
-  this.index = params.index || '';
+  this.facets = params.facets || [];
+  /**
+   * This attribute contains the list of all the disjunctive facets
+   * used. This list will be added to requested facets in the
+   * facets attribute sent to clinia.
+   * @member {string[]}
+   */
+  this.disjunctiveFacets = params.disjunctiveFacets || [];
 
-  // Query
+  // Refinements
   /**
-   * Query string of the search. The empty string is a valid query.
-   * @member {string}
+   * This attribute contains all the filters that need to be
+   * applied on the conjunctive facets. Each facet must be properly
+   * defined in the `facets` attribute.
+   *
+   * The key is the name of the facet, and the `FacetList` contains all
+   * filters selected for the associated facet name.
+   *
+   * When querying clinia, the values stored in this attribute will
+   * be translated into the `facetFilters` attribute.
+   * @member {Object.<string, SearchParameters.FacetList>}
    */
-  this.query = params.query || '';
-
-  // Misc. parameters
+  this.facetsRefinements = params.facetsRefinements || {};
   /**
-   * Number of hits to be returned by the search API
-   * @member {number}
+   * This attribute contains all the filters that need to be
+   * excluded from the conjunctive facets. Each facet must be properly
+   * defined in the `facets` attribute.
+   *
+   * The key is the name of the facet, and the `FacetList` contains all
+   * filters excluded for the associated facet name.
+   *
+   * When querying clinia, the values stored in this attribute will
+   * be translated into the `facetFilters` attribute.
+   * @member {Object.<string, SearchParameters.FacetList>}
    */
-  this.perPage = params.perPage;
+  this.facetsExcludes = params.facetsExcludes || {};
   /**
-   * The current page number
-   * @member {number}
+   * This attribute contains all the filters that need to be
+   * applied on the disjunctive facets. Each facet must be properly
+   * defined in the `disjunctiveFacets` attribute.
+   *
+   * The key is the name of the facet, and the `FacetList` contains all
+   * filters selected for the associated facet name.
+   *
+   * When querying clinia, the values stored in this attribute will
+   * be translated into the `facetFilters` attribute.
+   * @member {Object.<string, SearchParameters.FacetList>}
    */
-  this.page = params.page || 0;
-
-  /**
-   * Center of the geo search.
-   * @member {string}
-   */
-  this.aroundLatLng = params.aroundLatLng;
-
-  /**
-   * Radius of the geo search.
-   * @member {number}
-   */
-  this.aroundRadius = params.aroundRadius;
-
-  /**
-   * Geo search inside a box.
-   * @member {string}
-   */
-  this.insideBoundingBox = params.insideBoundingBox;
-
-  /**
-   * How the query should be treated by the search engine.
-   * Possible values: prefix_last, prefix_none
-   * @member {string}
-   */
-  this.queryType = params.queryType;
+  this.disjunctiveFacetsRefinements = params.disjunctiveFacetsRefinements || {};
 
   var self = this;
-  forOwn(params, function checkForUnknownParameter(paramValue, paramName) {
-    if (SearchParameters.PARAMETERS.indexOf(paramName) === -1) {
-      self[paramName] = paramValue;
+  Object.keys(params).forEach(function(paramName) {
+    var isKeyKnown = SearchParameters.PARAMETERS.indexOf(paramName) !== -1;
+    var isValueDefined = params[paramName] !== undefined;
+
+    if (!isKeyKnown && isValueDefined) {
+      self[paramName] = params[paramName];
     }
   });
 }
@@ -130,7 +114,7 @@ function SearchParameters(newParameters) {
  * This doesn't contain any beta/hidden features.
  * @private
  */
-SearchParameters.PARAMETERS = keys(new SearchParameters());
+SearchParameters.PARAMETERS = Object.keys(new SearchParameters());
 
 /**
  * @private
@@ -144,18 +128,30 @@ SearchParameters._parseNumbers = function(partialState) {
   var numbers = {};
 
   var numberKeys = [
+    'aroundRadius',
+    'maxValuesPerFacet',
     'page',
-    'perPage',
-    'aroundRadius'
+    'perPage'
   ];
 
-  forEach(numberKeys, function(k) {
+  numberKeys.forEach(function(k) {
     var value = partialState[k];
-    if (isString(value)) {
+    if (typeof value === 'string') {
       var parsedValue = parseFloat(value);
+      // global isNaN is ok to use here, value is only number or NaN
       numbers[k] = isNaN(parsedValue) ? value : parsedValue;
     }
   });
+
+  // there's two formats of insideBoundingBox, we need to parse
+  // the one which is an array of float geo rectangles
+  if (Array.isArray(partialState.insideBoundingBox)) {
+    numbers.insideBoundingBox = partialState.insideBoundingBox.map(function(geoRect) {
+      return geoRect.map(function(value) {
+        return parseFloat(value);
+      });
+    });
+  }
 
   return merge({}, partialState, numbers);
 };
@@ -191,14 +187,38 @@ SearchParameters.prototype = {
   /**
    * Remove all refinements
    * @method
-   * @param {undefined|string|SearchParameters.clearCallback} [attribute] optional string or function
+   * @param {undefined|string|SearchParameters.clearCallback} [property] optional string or function
    * - If not given, means to clear all the filters.
-   * - If `string`, means to clear all refinements for the `attribute` named filter.
+   * - If `string`, means to clear all refinements for the `property` named filter.
    * - If `function`, means to clear all the refinements that return truthy values.
    * @return {SearchParameters}
    */
-  clearRefinements: function clearRefinements(attribute) { // eslint-disable-line
-    return this;
+  clearRefinements: function clearRefinements(property) {
+    var patch = {
+      facetsRefinements: RefinementList.clearRefinement(
+        this.facetsRefinements,
+        property,
+        'conjunctiveFacet'
+      ),
+      facetsExcludes: RefinementList.clearRefinement(
+        this.facetsExcludes,
+        property,
+        'exclude'
+      ),
+      disjunctiveFacetsRefinements: RefinementList.clearRefinement(
+        this.disjunctiveFacetsRefinements,
+        property,
+        'disjunctiveFacet'
+      )
+    };
+    if (
+      patch.facetsRefinements === this.facetsRefinements &&
+      patch.facetsExcludes === this.facetsExcludes &&
+      patch.disjunctiveFacetsRefinements === this.disjunctiveFacetsRefinements
+    ) {
+      return this;
+    }
+    return this.setQueryParameters(patch);
   },
   /**
    * Set the index.
@@ -240,10 +260,36 @@ SearchParameters.prototype = {
     });
   },
   /**
-   * PerPage setter
-   * Hits per page represents the number of hits retrieved for this query
+   * Facets setter
+   * The facets are the simple facets, used for conjunctive (and) faceting.
    * @method
-   * @param {number} n number of hits retrieved per page of results
+   * @param {string[]} facets all the properties of the clinia records used for conjunctive faceting
+   * @return {SearchParameters}
+   */
+  setFacets: function setFacets(facets) {
+    return this.setQueryParameters({
+      facets: facets
+    });
+  },
+
+  /**
+   * Disjunctive facets setter
+   * Change the list of disjunctive (or) facets the helper chan handle.
+   * @method
+   * @param {string[]} facets all the properties of the clinia records used for disjunctive faceting
+   * @return {SearchParameters}
+   */
+  setDisjunctiveFacets: function setDisjunctiveFacets(facets) {
+    return this.setQueryParameters({
+      disjunctiveFacets: facets
+    });
+  },
+
+  /**
+   * PerPage setter
+   * Per page represents the number of records retrieved for this query
+   * @method
+   * @param {number} n number of records retrieved per page of results
    * @return {SearchParameters}
    */
   setPerPage: function setPerPage(n) {
@@ -254,35 +300,396 @@ SearchParameters.prototype = {
     });
   },
 
+  /**
+   * Get the list of conjunctive refinements for a single facet
+   * @param {string} facetName name of the property used for faceting
+   * @return {string[]} list of refinements
+   */
+  getConjunctiveRefinements: function(facetName) {
+    if (!this.isConjunctiveFacet(facetName)) {
+      return [];
+    }
+    return this.facetsRefinements[facetName] || [];
+  },
+
+  /**
+   * Get the list of disjunctive refinements for a single facet
+   * @param {string} facetName name of the property used for faceting
+   * @return {string[]} list of refinements
+   */
+  getDisjunctiveRefinements: function(facetName) {
+    if (!this.isDisjunctiveFacet(facetName)) {
+      return [];
+    }
+    return this.disjunctiveFacetsRefinements[facetName] || [];
+  },
+
+  /**
+   * Get the list of exclude refinements for a single facet
+   * @param {string} facetName name of the property used for faceting
+   * @return {string[]} list of refinements
+   */
+  getExcludeRefinements: function(facetName) {
+    if (!this.isConjunctiveFacet(facetName)) {
+      return [];
+    }
+    return this.facetsExcludes[facetName] || [];
+  },
+  /**
+   * Add a facet to the facets attribute of the helper configuration, if it
+   * isn't already present.
+   * @method
+   * @param {string} facet facet name to add
+   * @return {SearchParameters}
+   */
+  addFacet: function addFacet(facet) {
+    if (this.isConjunctiveFacet(facet)) {
+      return this;
+    }
+
+    return this.setQueryParameters({
+      facets: this.facets.concat([facet])
+    });
+  },
+  /**
+   * Add a disjunctive facet to the disjunctiveFacets attribute of the helper
+   * configuration, if it isn't already present.
+   * @method
+   * @param {string} facet disjunctive facet name to add
+   * @return {SearchParameters}
+   */
+  addDisjunctiveFacet: function addDisjunctiveFacet(facet) {
+    if (this.isDisjunctiveFacet(facet)) {
+      return this;
+    }
+
+    return this.setQueryParameters({
+      disjunctiveFacets: this.disjunctiveFacets.concat([facet])
+    });
+  },
+  /**
+   * Add a refinement on a "normal" facet
+   * @method
+   * @param {string} facet attribute to apply the faceting on
+   * @param {string} value value of the attribute (will be converted to string)
+   * @return {SearchParameters}
+   */
+  addFacetRefinement: function addFacetRefinement(facet, value) {
+    if (!this.isConjunctiveFacet(facet)) {
+      throw new Error(facet + ' is not defined in the facets attribute of the helper configuration');
+    }
+    if (RefinementList.isRefined(this.facetsRefinements, facet, value)) return this;
+
+    return this.setQueryParameters({
+      facetsRefinements: RefinementList.addRefinement(this.facetsRefinements, facet, value)
+    });
+  },
+  /**
+   * Exclude a value from a "normal" facet
+   * @method
+   * @param {string} facet attribute to apply the exclusion on
+   * @param {string} value value of the attribute (will be converted to string)
+   * @return {SearchParameters}
+   */
+  addExcludeRefinement: function addExcludeRefinement(facet, value) {
+    if (!this.isConjunctiveFacet(facet)) {
+      throw new Error(facet + ' is not defined in the facets attribute of the helper configuration');
+    }
+    if (RefinementList.isRefined(this.facetsExcludes, facet, value)) return this;
+
+    return this.setQueryParameters({
+      facetsExcludes: RefinementList.addRefinement(this.facetsExcludes, facet, value)
+    });
+  },
+  /**
+   * Adds a refinement on a disjunctive facet.
+   * @method
+   * @param {string} facet attribute to apply the faceting on
+   * @param {string} value value of the attribute (will be converted to string)
+   * @return {SearchParameters}
+   */
+  addDisjunctiveFacetRefinement: function addDisjunctiveFacetRefinement(facet, value) {
+    if (!this.isDisjunctiveFacet(facet)) {
+      throw new Error(
+        facet + ' is not defined in the disjunctiveFacets attribute of the helper configuration');
+    }
+
+    if (RefinementList.isRefined(this.disjunctiveFacetsRefinements, facet, value)) return this;
+
+    return this.setQueryParameters({
+      disjunctiveFacetsRefinements: RefinementList.addRefinement(
+        this.disjunctiveFacetsRefinements, facet, value)
+    });
+  },
+  /**
+   * Remove a facet from the facets attribute of the helper configuration, if it
+   * is present.
+   * @method
+   * @param {string} facet facet name to remove
+   * @return {SearchParameters}
+   */
+  removeFacet: function removeFacet(facet) {
+    if (!this.isConjunctiveFacet(facet)) {
+      return this;
+    }
+
+    return this.clearRefinements(facet).setQueryParameters({
+      facets: this.facets.filter(function(f) {
+        return f !== facet;
+      })
+    });
+  },
+  /**
+   * Remove a disjunctive facet from the disjunctiveFacets attribute of the
+   * helper configuration, if it is present.
+   * @method
+   * @param {string} facet disjunctive facet name to remove
+   * @return {SearchParameters}
+   */
+  removeDisjunctiveFacet: function removeDisjunctiveFacet(facet) {
+    if (!this.isDisjunctiveFacet(facet)) {
+      return this;
+    }
+
+    return this.clearRefinements(facet).setQueryParameters({
+      disjunctiveFacets: this.disjunctiveFacets.filter(function(f) {
+        return f !== facet;
+      })
+    });
+  },
+  /**
+   * Remove a refinement set on facet. If a value is provided, it will clear the
+   * refinement for the given value, otherwise it will clear all the refinement
+   * values for the faceted attribute.
+   * @method
+   * @param {string} facet name of the attribute used for faceting
+   * @param {string} [value] value used to filter
+   * @return {SearchParameters}
+   */
+  removeFacetRefinement: function removeFacetRefinement(facet, value) {
+    if (!this.isConjunctiveFacet(facet)) {
+      throw new Error(facet + ' is not defined in the facets attribute of the helper configuration');
+    }
+    if (!RefinementList.isRefined(this.facetsRefinements, facet, value)) return this;
+
+    return this.setQueryParameters({
+      facetsRefinements: RefinementList.removeRefinement(this.facetsRefinements, facet, value)
+    });
+  },
+  /**
+   * Remove a negative refinement on a facet
+   * @method
+   * @param {string} facet name of the attribute used for faceting
+   * @param {string} value value used to filter
+   * @return {SearchParameters}
+   */
+  removeExcludeRefinement: function removeExcludeRefinement(facet, value) {
+    if (!this.isConjunctiveFacet(facet)) {
+      throw new Error(facet + ' is not defined in the facets attribute of the helper configuration');
+    }
+    if (!RefinementList.isRefined(this.facetsExcludes, facet, value)) return this;
+
+    return this.setQueryParameters({
+      facetsExcludes: RefinementList.removeRefinement(this.facetsExcludes, facet, value)
+    });
+  },
+  /**
+   * Remove a refinement on a disjunctive facet
+   * @method
+   * @param {string} facet name of the attribute used for faceting
+   * @param {string} value value used to filter
+   * @return {SearchParameters}
+   */
+  removeDisjunctiveFacetRefinement: function removeDisjunctiveFacetRefinement(facet, value) {
+    if (!this.isDisjunctiveFacet(facet)) {
+      throw new Error(
+        facet + ' is not defined in the disjunctiveFacets attribute of the helper configuration');
+    }
+    if (!RefinementList.isRefined(this.disjunctiveFacetsRefinements, facet, value)) return this;
+
+    return this.setQueryParameters({
+      disjunctiveFacetsRefinements: RefinementList.removeRefinement(
+        this.disjunctiveFacetsRefinements, facet, value)
+    });
+  },
+  /**
+   * Generic toggle refinement method to use with facet and disjunctive facets
+   * @param  {string} facet the facet to refine
+   * @param  {string} value the associated value
+   * @return {SearchParameters}
+   * @throws will throw an error if the facet is not declared in the settings of the helper
+   */
+  toggleFacetRefinement: function toggleFacetRefinement(facet, value) {
+    if (this.isConjunctiveFacet(facet)) {
+      return this.toggleConjunctiveFacetRefinement(facet, value);
+    } else if (this.isDisjunctiveFacet(facet)) {
+      return this.toggleDisjunctiveFacetRefinement(facet, value);
+    }
+
+    throw new Error('Cannot refine the undeclared facet ' + facet +
+      '; it should be added to the helper options facets or disjunctiveFacets');
+  },
+  /**
+   * Switch the refinement applied over a facet/value
+   * @method
+   * @param {string} facet name of the attribute used for faceting
+   * @param {value} value value used for filtering
+   * @return {SearchParameters}
+   */
+  toggleConjunctiveFacetRefinement: function toggleConjunctiveFacetRefinement(facet, value) {
+    if (!this.isConjunctiveFacet(facet)) {
+      throw new Error(facet + ' is not defined in the facets attribute of the helper configuration');
+    }
+
+    return this.setQueryParameters({
+      facetsRefinements: RefinementList.toggleRefinement(this.facetsRefinements, facet, value)
+    });
+  },
+  /**
+   * Switch the refinement applied over a facet/value
+   * @method
+   * @param {string} facet name of the attribute used for faceting
+   * @param {value} value value used for filtering
+   * @return {SearchParameters}
+   */
+  toggleExcludeFacetRefinement: function toggleExcludeFacetRefinement(facet, value) {
+    if (!this.isConjunctiveFacet(facet)) {
+      throw new Error(facet + ' is not defined in the facets attribute of the helper configuration');
+    }
+
+    return this.setQueryParameters({
+      facetsExcludes: RefinementList.toggleRefinement(this.facetsExcludes, facet, value)
+    });
+  },
+  /**
+   * Switch the refinement applied over a facet/value
+   * @method
+   * @param {string} facet name of the attribute used for faceting
+   * @param {value} value value used for filtering
+   * @return {SearchParameters}
+   */
+  toggleDisjunctiveFacetRefinement: function toggleDisjunctiveFacetRefinement(facet, value) {
+    if (!this.isDisjunctiveFacet(facet)) {
+      throw new Error(
+        facet + ' is not defined in the disjunctiveFacets attribute of the helper configuration');
+    }
+
+    return this.setQueryParameters({
+      disjunctiveFacetsRefinements: RefinementList.toggleRefinement(
+        this.disjunctiveFacetsRefinements, facet, value)
+    });
+  },
+  /**
+   * Test if the facet name is from one of the disjunctive facets
+   * @method
+   * @param {string} facet facet name to test
+   * @return {boolean}
+   */
+  isDisjunctiveFacet: function(facet) {
+    return this.disjunctiveFacets.indexOf(facet) > -1;
+  },
+  /**
+   * Test if the facet name is from one of the conjunctive/normal facets
+   * @method
+   * @param {string} facet facet name to test
+   * @return {boolean}
+   */
+  isConjunctiveFacet: function(facet) {
+    return this.facets.indexOf(facet) > -1;
+  },
+  /**
+   * Returns true if the facet is refined, either for a specific value or in
+   * general.
+   * @method
+   * @param {string} facet name of the attribute for used for faceting
+   * @param {string} value, optional value. If passed will test that this value
+   * is filtering the given facet.
+   * @return {boolean} returns true if refined
+   */
+  isFacetRefined: function isFacetRefined(facet, value) {
+    if (!this.isConjunctiveFacet(facet)) {
+      return false;
+    }
+    return RefinementList.isRefined(this.facetsRefinements, facet, value);
+  },
+  /**
+   * Returns true if the facet contains exclusions or if a specific value is
+   * excluded.
+   *
+   * @method
+   * @param {string} facet name of the attribute for used for faceting
+   * @param {string} [value] optional value. If passed will test that this value
+   * is filtering the given facet.
+   * @return {boolean} returns true if refined
+   */
+  isExcludeRefined: function isExcludeRefined(facet, value) {
+    if (!this.isConjunctiveFacet(facet)) {
+      return false;
+    }
+    return RefinementList.isRefined(this.facetsExcludes, facet, value);
+  },
+  /**
+   * Returns true if the facet contains a refinement, or if a value passed is a
+   * refinement for the facet.
+   * @method
+   * @param {string} facet name of the attribute for used for faceting
+   * @param {string} value optional, will test if the value is used for refinement
+   * if there is one, otherwise will test if the facet contains any refinement
+   * @return {boolean}
+   */
+  isDisjunctiveFacetRefined: function isDisjunctiveFacetRefined(facet, value) {
+    if (!this.isDisjunctiveFacet(facet)) {
+      return false;
+    }
+    return RefinementList.isRefined(this.disjunctiveFacetsRefinements, facet, value);
+  },
+  /**
+   * Returns the list of all disjunctive facets refined
+   * @method
+   * @param {string} facet name of the property used for faceting
+   * @param {value} value value used for filtering
+   * @return {string[]}
+   */
+  getRefinedDisjunctiveFacets: function getRefinedDisjunctiveFacets() {
+    var self = this;
+
+
+    return Object.keys(this.disjunctiveFacetsRefinements).filter(function(facet) {
+      return self.disjunctiveFacetsRefinements[facet].length > 0;
+    });
+  },
+  /**
+   * Returned the list of all disjunctive facets not refined
+   * @method
+   * @return {string[]}
+   */
+  getUnrefinedDisjunctiveFacets: function() {
+    var refinedFacets = this.getRefinedDisjunctiveFacets();
+
+    return this.disjunctiveFacets.filter(function(f) {
+      return refinedFacets.indexOf(f) === -1;
+    });
+  },
+
   managedParameters: [
     'index',
-    'facets'
+    'facets', 'disjunctiveFacets', 'facetsRefinements',
+    'facetsExcludes', 'disjunctiveFacetsRefinements'
   ],
   getQueryParams: function getQueryParams() {
     var managedParameters = this.managedParameters;
 
     var queryParams = {};
 
-    forOwn(this, function(paramValue, paramName) {
-      if (indexOf(managedParameters, paramName) === -1 && paramValue !== undefined) {
+    var self = this;
+    Object.keys(this).forEach(function(paramName) {
+      var paramValue = self[paramName];
+      if (managedParameters.indexOf(paramName) === -1 && paramValue !== undefined) {
         queryParams[paramName] = paramValue;
       }
     });
 
     return queryParams;
-  },
-  /**
-   * Let the user retrieve any parameter value from the SearchParameters
-   * @param {string} paramName name of the parameter
-   * @return {any} the value of the parameter
-   */
-  getQueryParameter: function getQueryParameter(paramName) {
-    if (!this.hasOwnProperty(paramName)) {
-      throw new Error(
-        "Parameter '" + paramName + "' is not an attribute of SearchParameters ");
-    }
-
-    return this[paramName];
   },
   /**
    * Let the user set a specific value for a given parameter. Will return the
@@ -318,35 +725,56 @@ SearchParameters.prototype = {
       throw error;
     }
 
-    var parsedParams = SearchParameters._parseNumbers(params);
+    var self = this;
+    var nextWithNumbers = SearchParameters._parseNumbers(params);
+    var previousPlainObject = Object.keys(this).reduce(function(acc, key) {
+      acc[key] = self[key];
+      return acc;
+    }, {});
 
-    return this.mutateMe(function mergeWith(newInstance) {
-      var ks = keys(params);
+    var nextPlainObject = Object.keys(nextWithNumbers).reduce(
+      function(previous, key) {
+        var isPreviousValueDefined = previous[key] !== undefined;
+        var isNextValueDefined = nextWithNumbers[key] !== undefined;
 
-      forEach(ks, function(k) {
-        newInstance[k] = parsedParams[k];
-      });
+        if (isPreviousValueDefined && !isNextValueDefined) {
+          return omit(previous, [key]);
+        }
 
-      return newInstance;
-    });
+        if (isNextValueDefined) {
+          previous[key] = nextWithNumbers[key];
+        }
+
+        return previous;
+      },
+      previousPlainObject
+    );
+
+    return new this.constructor(nextPlainObject);
   },
+
   /**
-   * Helper function to make it easier to build new instances from a mutating
-   * function
-   * @private
-   * @param {function} fn newMutableState -> previousState -> () function that will
-   * change the value of the newMutable to the desired state
-   * @return {SearchParameters} a new instance with the specified modifications applied
+   * Returns a new instance with the page reset. Two scenarios possible:
+   * the page is omitted -> return the given instance
+   * the page is set -> return a new instance with a page of 0
+   * @return {SearchParameters} a new updated instance
    */
-  mutateMe: function mutateMe(fn) {
-    var newState = new this.constructor(this);
+  resetPage: function() {
+    if (this.page === undefined) {
+      return this;
+    }
 
-    fn(newState, this);
-    return newState;
-  },
-  toString: function() {
-    return JSON.stringify(this, null, 2);
+    return this.setPage(0);
   }
 };
 
+/**
+ * Callback used for clearRefinement method
+ * @callback SearchParameters.clearCallback
+ * @param {OperatorList|FacetList} value the value of the filter
+ * @param {string} key the current attribute name
+ * @param {string} type disjunctiveFacet`, `conjunctiveFacet` or `exclude`
+ * depending on the type of facet
+ * @return {boolean} `true` if the element should be removed. `false` otherwise.
+ */
 module.exports = SearchParameters;

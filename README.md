@@ -526,3 +526,5 @@ This project works on any [ES5](https://en.wikipedia.org/wiki/ECMAScript#5th_Edi
 [package-url]: https://npmjs.org/package/@clinia/search-helper
 [jsdelivr-badge]: https://data.jsdelivr.com/v1/package/npm/@clinia/search-helper/badge
 [jsdelivr-hits]: https://www.jsdelivr.com/package/npm/@clinia/search-helper
+[circle-svg]: https://circleci.com/gh/clinia/search-helper-js.svg?style=svg
+[circle-url]: https://circleci.com/gh/clinia/search-helper-js

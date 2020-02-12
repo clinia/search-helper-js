@@ -1,2 +1,9 @@
+2.0.0-beta.0 - 2020-02-12
+ * chore(deps-dev): bump handlebars from 4.1.0 to 4.3.0 (#3) https://github.com/clinia/search-helper-js/commit/ac35bee68ac325b0afeffb6c3645c40952191d7a, closes https://github.com/clinia/search-helper-js/issues/3
+ * chore: changelog https://github.com/clinia/search-helper-js/commit/1d696226d37dc4e387cd982f49380c0f2dc982af
+ * feat: add readme (#4) https://github.com/clinia/search-helper-js/commit/176e7ba4fa8481fc07a15272727cef08417aa1c7, closes https://github.com/clinia/search-helper-js/issues/4
+ * feat: added facets and facet refinements capabilities & added compatibility with clinia v2 https://github.com/clinia/search-helper-js/commit/ce3caace202288280d7c91cba4b50f1f614461e6
+ * feat: typescript definitions https://github.com/clinia/search-helper-js/commit/1674fca56d0275ea1dfe8a038efc08305b84f100
+
 
 1.0.0 - 2019-11-28 * chore: update examples to cliniasearch 1.0.0 https://github.com/clinia/clinia-helper-js/commit/eedfd4369d6e3775907265ee18fbaa1cfb9468d4 * chore: update peer dependencies https://github.com/clinia/clinia-helper-js/commit/3e4cef435e2f9ce8220ba10fc85e399dcdb2484f * chore: update permissions of release scripts https://github.com/clinia/clinia-helper-js/commit/98dcba8c6dd940e836a9c51d82ee838b8af563f8

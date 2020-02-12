@@ -33,3 +33,4 @@ documentation
 dist
 
 .vscode
+.DS_Store

@@ -11,6 +11,25 @@ test('undefined attribute', function() {
   expect(_.partial(helper.hasRefinements, 'unknown')).toThrow(Error);
 });
 
+describe('numericRefinement', function() {
+  test('with refinement', function() {
+    var helper = searchHelper(fakeClient, 'index');
+
+    helper.addNumericRefinement('price', '=', 1337);
+
+    expect(helper.hasRefinements('price')).toBe(true);
+  });
+
+  test('without refinement', function() {
+    var helper = searchHelper(fakeClient, 'index');
+
+    helper.addNumericRefinement('price', '=', 1337);
+    helper.clearRefinements('price');
+
+    expect(helper.hasRefinements('price')).toBe(false);
+  });
+});
+
 describe('facet', function() {
   test('with refinement', function() {
     var helper = searchHelper(fakeClient, 'index', {

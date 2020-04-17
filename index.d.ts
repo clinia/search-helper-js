@@ -8,13 +8,6 @@ type DummySearchClientV2 = {
   readonly addCliniaAgent: (segment: string, version?: string) => void;
 };
 
-// type Client = ReturnType<typeof clinia> extends DummySearchClientV2
-//   & SearchClientV4;
-// type SearchOptions = Client extends DummySearchClientV4
-//   & SearchOptionsV4;
-// type SearchResponse<T> = Client extends DummySearchClientV4
-//   ? SearchResponseV4<T>;
-
 type SearchClient = Pick<Client, 'search'>;
 
 /**
@@ -22,7 +15,7 @@ type SearchClient = Pick<Client, 'search'>;
  * contains everything needed to use the Search
  * Helper. It is a also a function that instantiate the helper.
  * To use the helper, you also need the Clinia JS client v2.
- * @param client an Clinia client
+ * @param client a Clinia search client
  * @param index the name of the index to query
  * @param opts
  */
@@ -101,7 +94,7 @@ declare namespace searchHelper {
      *  - content with a SearchResults
      *  - state with the state used for the query as a SearchParameters
      * @example
-     * // Changing the number of records returned per page to 1
+     * // Changing the number of hits returned per page to 1
      * // This example uses the callback API
      * var state = helper.searchOnce({perPage: 1},
      *   function(error, content, state) {
@@ -110,7 +103,7 @@ declare namespace searchHelper {
      *     // state is the instance of SearchParameters used for this search
      *   });
      * @example
-     * // Changing the number of records returned per page to 1
+     * // Changing the number of hits returned per page to 1
      * // This example uses the promise API
      * var state1 = helper.searchOnce({perPage: 1})
      *                 .then(promiseHandler);
@@ -186,6 +179,7 @@ declare namespace searchHelper {
     setIndex(name: string): this;
 
     addDisjunctiveFacetRefinement(...args: any[]): any;
+    addNumericRefinement(...args: any[]): any;
     addFacetRefinement(...args: any[]): any;
     addFacetExclusion(...args: any[]): any;
     removeDisjunctiveFacetRefinement(...args: any[]): any;
@@ -214,6 +208,7 @@ declare namespace searchHelper {
     getIndex(...args: any[]): any;
     getPage(...args: any[]): any;
     getRefinements(...args: any[]): any;
+    getNumericRefinement(...args: any[]): any;
     containsRefinement(...args: any[]): any;
     clearCache(...args: any[]): any;
     setClient(client: SearchClient): this;
@@ -296,7 +291,17 @@ declare namespace searchHelper {
       [facet: string]: SearchParameters.FacetList;
     };
 
-    ruleContexts?: string[];
+    /**
+     * This attribute contains all the filters that need to be
+     * applied on the numeric properties.
+     *
+     * The key is the name of the property, and the value is the
+     * filters to apply to this property.
+     *
+     * When querying clinia, the values stored in this property will
+     * be translated into the `numericFilters` property.
+     */
+    numericRefinements?: { [facet: string]: SearchParameters.OperatorList };
   }
 
   export class SearchParameters implements PlainSearchParameters {
@@ -306,7 +311,8 @@ declare namespace searchHelper {
       'disjunctiveFacets',
       'facetsRefinements',
       'facetsExcludes',
-      'disjunctiveFacetsRefinements'
+      'disjunctiveFacetsRefinements',
+      'numericRefinements'
     ];
 
     constructor(newParameters?: PlainSearchParameters);
@@ -320,10 +326,15 @@ declare namespace searchHelper {
     ): SearchParameters;
     /* Exclude a value from a "normal" facet */
     addExcludeRefinement(facet: string, value: string): SearchParameters;
-    /* Add a facet to the facets attribute of the helper configuration, if it isn't already present. */
+    /* Add a facet to the facets property of the helper configuration, if it isn't already present. */
     addFacet(facet: string): SearchParameters;
     /* Add a refinement on a "normal" facet */
     addFacetRefinement(facet: string, value: string): SearchParameters;
+    addNumericRefinement(
+      property: string,
+      operator: SearchParameters.Operator,
+      value: number | number[]
+    ): SearchParameters;
     clearRefinements(
       property?:
         | string
@@ -332,6 +343,11 @@ declare namespace searchHelper {
     getConjunctiveRefinements(facetName: string): string[];
     getDisjunctiveRefinements(facetName: string): string[];
     getExcludeRefinements(facetName: string): string[];
+    getNumericRefinements(facetName: string): SearchParameters.OperatorList[];
+    getNumericRefinement(
+      property: string,
+      operator: SearchParameters.Operator
+    ): Array<number | number[]>;
     getQueryParams(): SearchOptions;
     getRefinedDisjunctiveFacets(facet: string, value: any): string[];
     getUnrefinedDisjunctiveFacets(): string[];
@@ -340,6 +356,11 @@ declare namespace searchHelper {
     isDisjunctiveFacet(facet: string): boolean;
     isExcludeRefined(facet: string, value?: string): boolean;
     isFacetRefined(facet: string, value?: string): boolean;
+    isNumericRefined(
+      property: string,
+      operator?: SearchParameters.Operator,
+      value?: string
+    ): boolean;
     static make(newParameters: PlainSearchParameters): SearchParameters;
     removeExcludeRefinement(facet: string, value: string): SearchParameters;
     removeFacet(facet: string): SearchParameters;
@@ -430,6 +451,18 @@ declare namespace searchHelper {
       [facet: string]: SearchParameters.FacetList;
     };
 
+    /**
+     * This property contains all the filters that need to be
+     * applied on the numeric properties.
+     *
+     * The key is the name of the attribute, and the value is the
+     * filters to apply to this property.
+     *
+     * When querying clinia, the values stored in this property will
+     * be translated into the `numericFilters` property.
+     */
+    numericRefinements: { [facet: string]: SearchParameters.OperatorList };
+
     /* end implementation of PlainSearchParameters */
 
     /**
@@ -443,12 +476,18 @@ declare namespace searchHelper {
      * default: ''
      */
     query?: string;
+
+    /**
+     * A string that contains the list of properties you want to retrieve in order to minimize the size of the JSON answer.
+     * default: *
+     */
+    properties?: string[];
     
     /**
      * List of properties you want to use for textual search
      * default: all
      */
-    searchableProperties?: string[];
+    searchProperties?: string[];
 
     /**
      * You can use facets to retrieve only a part of your properties declared in attributesForFaceting attributes
@@ -457,10 +496,22 @@ declare namespace searchHelper {
     facets?: string[];
 
     /**
+     * Filter the query by a set of facets.
+     * Default: []
+     */
+    facetFilters?: string[] | string[][];
+
+    /**
      * Limit the number of facet values returned for each facet.
      * default: 100
      */
     maxValuesPerFacet?: number;
+
+    /**
+     * Default list of properties to highlight. If set to null, all indexed properties are highlighted.
+     * default: null
+     */
+    highlightProperties?: string[];
 
     /**
      * Specify the string that is inserted before the highlighted parts in the query result
@@ -475,7 +526,7 @@ declare namespace searchHelper {
     highlightPostTag?: string;
 
     /**
-     * Pagination parameter used to select the number of records per page
+     * Pagination parameter used to select the number of hits per page
      * default: 20
      */
     perPage?: number;
@@ -511,17 +562,11 @@ declare namespace searchHelper {
      * 'prefix_last' Only the last word is interpreted as a prefix.
      * 'prefix_none' No query word is interpreted as a prefix. (default behavior)
      */
-    queryType?: 'prefix_last' | 'prefix_none';
+    queryType?: 'prefix_last' | 'prefix_none' | 'prefix_all';
 
-    /**
-     * Filter the query by a set of facets.
-     * Default: []
-     */
-    facetFilters?: string[] | string[][];
+    
 
     /* end implementation of clinia.QueryParameters */
-
-    ruleContexts?: string[];
   }
 
   namespace SearchParameters {

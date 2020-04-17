@@ -1,14 +1,56 @@
 'use strict';
 
 var merge = require('../functions/merge');
+var find = require('../functions/find');
+var valToNumber = require('../functions/valToNumber');
 var omit = require('../functions/omit');
+var objectHasKeys = require('../functions/objectHasKeys');
 
 var RefinementList = require('./RefinementList');
+
+/**
+ * isEqual, but only for numeric refinement values, possible values:
+ * - 5
+ * - [5]
+ * - [[5]]
+ * - [[5,5],[4]]
+ */
+function isEqualNumericRefinement(a, b) {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return (
+      a.length === b.length &&
+      a.every(function(el, i) {
+        return isEqualNumericRefinement(b[i], el);
+      })
+    );
+  }
+  return a === b;
+}
+
+/**
+ * like _.find but using deep equality to be able to use it
+ * to find arrays.
+ * @private
+ * @param {any[]} array array to search into (elements are base or array of base)
+ * @param {any} searchedValue the value we're looking for (base or array of base)
+ * @return {any} the searched value or undefined
+ */
+function findArray(array, searchedValue) {
+  return find(array, function(currentValue) {
+    return isEqualNumericRefinement(currentValue, searchedValue);
+  });
+}
 
 /**
  * The facet list is the structure used to store the list of values used to
  * filter a single attribute.
  * @typedef {string[]} SearchParameters.FacetList
+ */
+
+ /**
+ * Structure to store numeric filters with the operator as the key. The supported operators
+ * are `=`, `>`, `<`, `>=`, `<=` and `!=`.
+ * @typedef {Object.<string, Array.<number|number[]>>} SearchParameters.OperatorList
  */
 
 
@@ -35,7 +77,8 @@ var RefinementList = require('./RefinementList');
   "page": 0,
   "perPage": 10,
   "facets": [
-    "type"
+    "type",
+    "services"
   ]
 }
  */
@@ -71,6 +114,7 @@ function SearchParameters(newParameters) {
    * @member {Object.<string, SearchParameters.FacetList>}
    */
   this.facetsRefinements = params.facetsRefinements || {};
+
   /**
    * This attribute contains all the filters that need to be
    * excluded from the conjunctive facets. Each facet must be properly
@@ -84,6 +128,7 @@ function SearchParameters(newParameters) {
    * @member {Object.<string, SearchParameters.FacetList>}
    */
   this.facetsExcludes = params.facetsExcludes || {};
+
   /**
    * This attribute contains all the filters that need to be
    * applied on the disjunctive facets. Each facet must be properly
@@ -97,6 +142,19 @@ function SearchParameters(newParameters) {
    * @member {Object.<string, SearchParameters.FacetList>}
    */
   this.disjunctiveFacetsRefinements = params.disjunctiveFacetsRefinements || {};
+
+  /**
+   * This attribute contains all the filters that need to be
+   * applied on the numeric attributes.
+   *
+   * The key is the name of the attribute, and the value is the
+   * filters to apply to this attribute.
+   *
+   * When querying algolia, the values stored in this attribute will
+   * be translated into the `numericFilters` attribute.
+   * @member {Object.<string, SearchParameters.OperatorList>}
+   */
+  this.numericRefinements = params.numericRefinements || {};
 
   var self = this;
   Object.keys(params).forEach(function(paramName) {
@@ -129,9 +187,11 @@ SearchParameters._parseNumbers = function(partialState) {
 
   var numberKeys = [
     'aroundRadius',
+    'rankingInfo',
     'maxValuesPerFacet',
     'page',
-    'perPage'
+    'perPage',
+    'minimumAroundRadius'
   ];
 
   numberKeys.forEach(function(k) {
@@ -151,6 +211,32 @@ SearchParameters._parseNumbers = function(partialState) {
         return parseFloat(value);
       });
     });
+  }
+
+  if (partialState.numericRefinements) {
+    var numericRefinements = {};
+    Object.keys(partialState.numericRefinements).forEach(function(attribute) {
+      var operators = partialState.numericRefinements[attribute] || {};
+      numericRefinements[attribute] = {};
+      Object.keys(operators).forEach(function(operator) {
+        var values = operators[operator];
+        var parsedValues = values.map(function(v) {
+          if (Array.isArray(v)) {
+            return v.map(function(vPrime) {
+              if (typeof vPrime === 'string') {
+                return parseFloat(vPrime);
+              }
+              return vPrime;
+            });
+          } else if (typeof v === 'string') {
+            return parseFloat(v);
+          }
+          return v;
+        });
+        numericRefinements[attribute][operator] = parsedValues;
+      });
+    });
+    numbers.numericRefinements = numericRefinements;
   }
 
   return merge({}, partialState, numbers);
@@ -176,7 +262,26 @@ SearchParameters.make = function makeSearchParameters(newParameters) {
  * @return {Error|null} Error if the modification is invalid, null otherwise
  */
 SearchParameters.validate = function(currentState, parameters) {
-  var params = parameters || {}; // eslint-disable-line
+  var params = parameters || {};
+
+  if (
+    currentState.numericFilters &&
+    params.numericRefinements &&
+    objectHasKeys(params.numericRefinements)
+  ) {
+    return new Error(
+      "[Numeric filters] Can't switch from the advanced to the managed API. It" +
+        ' is probably an error, if this is really what you want, you have to first' +
+        ' clear the numeric filters.'
+    );
+  }
+
+  if (objectHasKeys(currentState.numericRefinements) && params.numericFilters) {
+    return new Error(
+      "[Numeric filters] Can't switch from the managed API to the advanced. It" +
+      ' is probably an error, if this is really what you want, you have to first' +
+      ' clear the numeric filters.');
+  }
 
   return null;
 };
@@ -195,6 +300,7 @@ SearchParameters.prototype = {
    */
   clearRefinements: function clearRefinements(property) {
     var patch = {
+      numericRefinements: this._clearNumericRefinements(property),
       facetsRefinements: RefinementList.clearRefinement(
         this.facetsRefinements,
         property,
@@ -212,6 +318,7 @@ SearchParameters.prototype = {
       )
     };
     if (
+      patch.numericRefinements === this.numericRefinements &&
       patch.facetsRefinements === this.facetsRefinements &&
       patch.facetsExcludes === this.facetsExcludes &&
       patch.disjunctiveFacetsRefinements === this.disjunctiveFacetsRefinements
@@ -301,6 +408,46 @@ SearchParameters.prototype = {
   },
 
   /**
+   * Add a numeric filter for a given property
+   * When value is an array, they are combined with OR
+   * When value is a single value, it will combined with AND
+   * @method
+   * @param {string} property property to set the filter on
+   * @param {string} operator operator of the filter (possible values: =, >, >=, <, <=, !=)
+   * @param {number | number[]} value value of the filter
+   * @return {SearchParameters}
+   * @example
+   * // for openingHours.day = 1 or 2
+   * searchparameter.addNumericRefinement('openingHours.day', '=', [1, 2]);
+   * @example
+   * // for waitTime = 38 and 40
+   * searchparameter.addNumericRefinement('waitTime', '=', 38);
+   * searchparameter.addNumericRefinement('waitTime', '=', 40);
+   */
+  addNumericRefinement: function(property, operator, v) {
+    var value = valToNumber(v);
+
+    if (this.isNumericRefined(property, operator, value)) return this;
+
+    var mod = merge({}, this.numericRefinements);
+
+    mod[property] = merge({}, mod[property]);
+
+    if (mod[property][operator]) {
+      // Array copy
+      mod[property][operator] = mod[property][operator].slice();
+      // Add the element. Concat can't be used here because value can be an array.
+      mod[property][operator].push(value);
+    } else {
+      mod[property][operator] = [value];
+    }
+
+    return this.setQueryParameters({
+      numericRefinements: mod
+    });
+  },
+
+  /**
    * Get the list of conjunctive refinements for a single facet
    * @param {string} facetName name of the property used for faceting
    * @return {string[]} list of refinements
@@ -335,8 +482,115 @@ SearchParameters.prototype = {
     }
     return this.facetsExcludes[facetName] || [];
   },
+
   /**
-   * Add a facet to the facets attribute of the helper configuration, if it
+   * Remove all the numeric filter for a given (property, operator)
+   * @method
+   * @param {string} property property to set the filter on
+   * @param {string} [operator] operator of the filter (possible values: =, >, >=, <, <=, !=)
+   * @param {number} [number] the value to be removed
+   * @return {SearchParameters}
+   */
+  removeNumericRefinement: function(property, operator, paramValue) {
+    if (paramValue !== undefined) {
+      if (!this.isNumericRefined(property, operator, paramValue)) {
+        return this;
+      }
+      return this.setQueryParameters({
+        numericRefinements: this._clearNumericRefinements(function(value, key) {
+          return (
+            key === property &&
+            value.op === operator &&
+            isEqualNumericRefinement(value.val, valToNumber(paramValue))
+          );
+        })
+      });
+    } else if (operator !== undefined) {
+      if (!this.isNumericRefined(property, operator)) return this;
+      return this.setQueryParameters({
+        numericRefinements: this._clearNumericRefinements(function(value, key) {
+          return key === property && value.op === operator;
+        })
+      });
+    }
+
+    if (!this.isNumericRefined(property)) return this;
+    return this.setQueryParameters({
+      numericRefinements: this._clearNumericRefinements(function(value, key) {
+        return key === property;
+      })
+    });
+  },
+  /**
+   * Get the list of numeric refinements for a single facet
+   * @param {string} facetName name of the property used for faceting
+   * @return {SearchParameters.OperatorList[]} list of refinements
+   */
+  getNumericRefinements: function(facetName) {
+    return this.numericRefinements[facetName] || {};
+  },
+  /**
+   * Return the current refinement for the (property, operator)
+   * @param {string} property property in the record
+   * @param {string} operator operator applied on the refined values
+   * @return {Array.<number|number[]>} refined values
+   */
+  getNumericRefinement: function(property, operator) {
+    return this.numericRefinements[property] && this.numericRefinements[property][operator];
+  },
+  /**
+   * Clear numeric filters.
+   * @method
+   * @private
+   * @param {string|SearchParameters.clearCallback} [property] optional string or function
+   * - If not given, means to clear all the filters.
+   * - If `string`, means to clear all refinements for the `property` named filter.
+   * - If `function`, means to clear all the refinements that return truthy values.
+   * @return {Object.<string, OperatorList>}
+   */
+  _clearNumericRefinements: function _clearNumericRefinements(property) {
+    if (property === undefined) {
+      if (!objectHasKeys(this.numericRefinements)) {
+        return this.numericRefinements;
+      }
+      return {};
+    } else if (typeof property === 'string') {
+      if (!objectHasKeys(this.numericRefinements[property])) {
+        return this.numericRefinements;
+      }
+      return omit(this.numericRefinements, [property]);
+    } else if (typeof property === 'function') {
+      var hasChanged = false;
+      var numericRefinements = this.numericRefinements;
+      var newNumericRefinements = Object.keys(numericRefinements).reduce(function(memo, key) {
+        var operators = numericRefinements[key];
+        var operatorList = {};
+
+        operators = operators || {};
+        Object.keys(operators).forEach(function(operator) {
+          var values = operators[operator] || [];
+          var outValues = [];
+          values.forEach(function(value) {
+            var predicateResult = property({val: value, op: operator}, key, 'numeric');
+            if (!predicateResult) outValues.push(value);
+          });
+          if (outValues.length !== values.length) {
+            hasChanged = true;
+          }
+          operatorList[operator] = outValues;
+        });
+
+        memo[key] = operatorList;
+
+        return memo;
+      }, {});
+
+      if (hasChanged) return newNumericRefinements;
+      return this.numericRefinements;
+    }
+  },
+  /**
+   * Add a facet to the facets property of the helper configuration, if it
    * isn't already present.
    * @method
    * @param {string} facet facet name to add
@@ -352,7 +606,7 @@ SearchParameters.prototype = {
     });
   },
   /**
-   * Add a disjunctive facet to the disjunctiveFacets attribute of the helper
+   * Add a disjunctive facet to the disjunctiveFacets property of the helper
    * configuration, if it isn't already present.
    * @method
    * @param {string} facet disjunctive facet name to add
@@ -370,13 +624,13 @@ SearchParameters.prototype = {
   /**
    * Add a refinement on a "normal" facet
    * @method
-   * @param {string} facet attribute to apply the faceting on
-   * @param {string} value value of the attribute (will be converted to string)
+   * @param {string} facet property to apply the faceting on
+   * @param {string} value value of the property (will be converted to string)
    * @return {SearchParameters}
    */
   addFacetRefinement: function addFacetRefinement(facet, value) {
     if (!this.isConjunctiveFacet(facet)) {
-      throw new Error(facet + ' is not defined in the facets attribute of the helper configuration');
+      throw new Error(facet + ' is not defined in the facets property of the helper configuration');
     }
     if (RefinementList.isRefined(this.facetsRefinements, facet, value)) return this;
 
@@ -387,8 +641,8 @@ SearchParameters.prototype = {
   /**
    * Exclude a value from a "normal" facet
    * @method
-   * @param {string} facet attribute to apply the exclusion on
-   * @param {string} value value of the attribute (will be converted to string)
+   * @param {string} facet property to apply the exclusion on
+   * @param {string} value value of the property (will be converted to string)
    * @return {SearchParameters}
    */
   addExcludeRefinement: function addExcludeRefinement(facet, value) {
@@ -617,7 +871,7 @@ SearchParameters.prototype = {
    * excluded.
    *
    * @method
-   * @param {string} facet name of the attribute for used for faceting
+   * @param {string} facet name of the property for used for faceting
    * @param {string} [value] optional value. If passed will test that this value
    * is filtering the given facet.
    * @return {boolean} returns true if refined
@@ -632,7 +886,7 @@ SearchParameters.prototype = {
    * Returns true if the facet contains a refinement, or if a value passed is a
    * refinement for the facet.
    * @method
-   * @param {string} facet name of the attribute for used for faceting
+   * @param {string} facet name of the property for used for faceting
    * @param {string} value optional, will test if the value is used for refinement
    * if there is one, otherwise will test if the facet contains any refinement
    * @return {boolean}
@@ -642,6 +896,36 @@ SearchParameters.prototype = {
       return false;
     }
     return RefinementList.isRefined(this.disjunctiveFacetsRefinements, facet, value);
+  },
+  /**
+   * Test if the triple (property, operator, value) is already refined.
+   * If only the property and the operator are provided, it tests if the
+   * contains any refinement value.
+   * @method
+   * @param {string} property property for which the refinement is applied
+   * @param {string} [operator] operator of the refinement
+   * @param {string} [value] value of the refinement
+   * @return {boolean} true if it is refined
+   */
+  isNumericRefined: function isNumericRefined(property, operator, value) {
+    if (value === undefined && operator === undefined) {
+      return !!this.numericRefinements[property];
+    }
+
+    var isOperatorDefined =
+      this.numericRefinements[property] &&
+      this.numericRefinements[property][operator] !== undefined;
+
+    if (value === undefined || !isOperatorDefined) {
+      return isOperatorDefined;
+    }
+
+    var parsedValue = valToNumber(value);
+    var isPropertyValueDefined =
+      findArray(this.numericRefinements[property][operator], parsedValue) !==
+      undefined;
+
+    return isOperatorDefined && isPropertyValueDefined;
   },
   /**
    * Returns the list of all disjunctive facets refined
@@ -674,7 +958,8 @@ SearchParameters.prototype = {
   managedParameters: [
     'index',
     'facets', 'disjunctiveFacets', 'facetsRefinements',
-    'facetsExcludes', 'disjunctiveFacetsRefinements'
+    'facetsExcludes', 'disjunctiveFacetsRefinements',
+    'numericRefinements'
   ],
   getQueryParams: function getQueryParams() {
     var managedParameters = this.managedParameters;

@@ -7,6 +7,7 @@ var requestBuilder = require('./requestBuilder');
 
 var events = require('events');
 var inherits = require('./functions/inherits');
+var objectHasKeys = require('./functions/objectHasKeys');
 
 var version = require('./version');
 
@@ -146,7 +147,7 @@ CliniaSearchHelper.prototype.searchOnlyWithDerivedHelpers = function() {
  */
 CliniaSearchHelper.prototype.getQuery = function() {
   var state = this.state;
-  return requestBuilder._getRecordsSearchParams(state);
+  return requestBuilder._getHitsSearchParams(state);
 };
 
 /**
@@ -305,6 +306,27 @@ CliniaSearchHelper.prototype.addDisjunctiveFacetRefinement = function(facet, val
 };
 
 /**
+ * Adds a an numeric filter to an property with the `operator` and `value` provided. If the
+ * filter is already set, it doesn't change the filters.
+ *
+ * This method resets the current page to 0.
+ * @param  {string} property the property on which the numeric filter applies
+ * @param  {string} operator the operator of the filter
+ * @param  {number} value the value of the filter
+ * @return {AlgoliaSearchHelper}
+ * @fires change
+ * @chainable
+ */
+CliniaSearchHelper.prototype.addNumericRefinement = function(property, operator, value) {
+  this._change({
+    state: this.state.resetPage().addNumericRefinement(property, operator, value),
+    isPageReset: true
+  });
+
+  return this;
+};
+
+/**
  * Adds a filter to a faceted property with the `value` provided. If the
  * filter is already set, it doesn't change the filters.
  *
@@ -338,6 +360,33 @@ CliniaSearchHelper.prototype.addFacetRefinement = function(facet, value) {
 CliniaSearchHelper.prototype.addFacetExclusion = function(facet, value) {
   this._change({
     state: this.state.resetPage().addExcludeRefinement(facet, value),
+    isPageReset: true
+  });
+
+  return this;
+};
+
+/**
+ * Removes an numeric filter to an property with the `operator` and `value` provided. If the
+ * filter is not set, it doesn't change the filters.
+ *
+ * Some parameters are optional, triggering different behavior:
+ *  - if the value is not provided, then all the numeric value will be removed for the
+ *  specified property/operator couple.
+ *  - if the operator is not provided either, then all the numeric filter on this property
+ *  will be removed.
+ *
+ * This method resets the current page to 0.
+ * @param  {string} property the property on which the numeric filter applies
+ * @param  {string} [operator] the operator of the filter
+ * @param  {number} [value] the value of the filter
+ * @return {AlgoliaSearchHelper}
+ * @fires change
+ * @chainable
+ */
+CliniaSearchHelper.prototype.removeNumericRefinement = function(property, operator, value) {
+  this._change({
+    state: this.state.resetPage().removeNumericRefinement(property, operator, value),
     isPageReset: true
   });
 
@@ -603,7 +652,9 @@ CliniaSearchHelper.prototype.overrideStateWithoutTriggeringChangeEvent = functio
  *
  */
 CliniaSearchHelper.prototype.hasRefinements = function(property) {
-  if (this.state.isConjunctiveFacet(property)) {
+  if (objectHasKeys(this.state.getNumericRefinements(property))) {
+    return true;
+  } else if (this.state.isConjunctiveFacet(property)) {
     return this.state.isFacetRefined(property);
   } else if (this.state.isDisjunctiveFacet(property)) {
     return this.state.isDisjunctiveFacetRefined(property);
@@ -724,7 +775,29 @@ CliniaSearchHelper.prototype.getRefinements = function(facetName) {
     });
   }
 
+  var numericRefinements = this.state.getNumericRefinements(facetName);
+
+  Object.keys(numericRefinements).forEach(function(operator) {
+    var value = numericRefinements[operator];
+
+    refinements.push({
+      value: value,
+      operator: operator,
+      type: 'numeric'
+    });
+  });
+
   return refinements;
+};
+
+/**
+ * Return the current refinement for the (property, operator)
+ * @param {string} property property in the record
+ * @param {string} operator operator applied on the refined values
+ * @return {Array.<number|number[]>} refined values
+ */
+CliniaSearchHelper.prototype.getNumericRefinement = function(property, operator) {
+  return this.state.getNumericRefinement(property, operator);
 };
 
 // /////////// PRIVATE

@@ -63,7 +63,7 @@ test('Using toggleRefine on a non specified facet should throw an exception', fu
   expect(_.partial(helper.toggleFacetRefinement, 'unknown', 'value')).toThrow();
 });
 
-test('Removing several refinements for a single attribute should be handled', function() {
+test('Removing several refinements for a single property should be handled', function() {
   var facetName = 'facet';
 
   var helper = searchHelper(emptyClient, null, {

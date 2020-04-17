@@ -130,90 +130,81 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@clinia/cache-browser-local-storage@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/cache-browser-local-storage/-/cache-browser-local-storage-2.0.0-beta.1.tgz#3ceea4ddcd1de98352aba7bb872f862e63130949"
-  integrity sha512-7PPcmDxpTs98bmilm2tePOr5sT/qVUJAvxW3Rj6r9PifBw+gajm/47C5jyzU7Ihj94ek006kx8Pl7IgqGXdjfw==
+"@clinia/cache-browser-local-storage@2.0.0-beta.2":
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@clinia/cache-browser-local-storage/-/cache-browser-local-storage-2.0.0-beta.2.tgz#03331f08336ba7ae0282f56910a2afa36343b58d"
+  integrity sha512-cfKnLsBUFQakArNMOlrBaiE5OPZCc7DG+DKsCzlA5G3OKunO46he/4TyMTNNERxn659zBnTTY9moTjUDTf2Y/g==
   dependencies:
-    "@clinia/cache-common" "^2.0.0-beta.1"
+    "@clinia/cache-common" "2.0.0-beta.2"
 
-"@clinia/cache-common@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/cache-common/-/cache-common-2.0.0-beta.1.tgz#3f4be6aa475f0d5a8edf374b674738bfd0cd89bb"
-  integrity sha512-8qF2iuWdERgFA6EWnbUXYQ2eG64DMgc50je2uuRaHKnWHE5imPddl33cjKDP6E1muEWEIB/nC9dG3GRnwLHTDg==
+"@clinia/cache-common@2.0.0-beta.2":
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@clinia/cache-common/-/cache-common-2.0.0-beta.2.tgz#c1c133a2f7b1dbb563e97a5e0f39f4b7eeadbedf"
+  integrity sha512-XSDHZCWYew94t5ytCKVuc0IHdnaXxqdxfAxOsJHccIRJrKJQPD+/KleP5ViXwmOd5+3CoG6RRixeDfqXXELXrg==
 
-"@clinia/cache-in-memory@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/cache-in-memory/-/cache-in-memory-2.0.0-beta.1.tgz#e087b4121fa7b316d4ab9f8c81c88773558c631a"
-  integrity sha512-i/1AzO53DI2VyVLx945xKOx3HTePhgUUJxgPbvB+1lc/Kdi1gh8+r0dZLc4ZktSCo7e3hRcUIKAM1Vlo/htiQA==
+"@clinia/cache-in-memory@2.0.0-beta.2":
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@clinia/cache-in-memory/-/cache-in-memory-2.0.0-beta.2.tgz#ca6a876994e08fd66efe3dd263df9d14447fcde1"
+  integrity sha512-RRAv2VVBdPLHbYG2PsTqEYr4enKpVSXNgoPPZs3DhEVk+AHMhI7GOizTPVFEjAn0k6RFmaKeffwLQgEdb5IVzA==
   dependencies:
-    "@clinia/cache-common" "^2.0.0-beta.1"
+    "@clinia/cache-common" "2.0.0-beta.2"
 
-"@clinia/client-common@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/client-common/-/client-common-2.0.0-beta.1.tgz#7dd161c3af81788a275b653c59a5781a37b8ccb9"
-  integrity sha512-xf6pFWvQaUWI7FuA1UEhuUSmqMlqagJmOwGOtxx+nqLHzwHbqRS2tMP2B51zBSnHf2UHOFfsIYus8zHutVlhJA==
+"@clinia/client-common@2.0.0-beta.2":
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@clinia/client-common/-/client-common-2.0.0-beta.2.tgz#d2e8aaff01c5fe922126d79d7ad4c84ff856f0a8"
+  integrity sha512-FIzdmN/f3S1EpLoD5gPpxXccYgbCvfdICNcaayIEUz6kHTi6/Ex64ji2dIUeYTldtrKI9kykR696D87TFCCAOw==
   dependencies:
-    "@clinia/requester-common" "^2.0.0-beta.1"
-    "@clinia/transporter" "^2.0.0-beta.1"
+    "@clinia/requester-common" "2.0.0-beta.2"
+    "@clinia/transporter" "2.0.0-beta.2"
 
-"@clinia/client-places@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/client-places/-/client-places-2.0.0-beta.1.tgz#0c54f240c6b970b7f776e6bae4de63dd32433120"
-  integrity sha512-5CPvqvHkSCXSs5q5wgV4lG0VaJ9oNQkOxrJtsqXod6Zcsh1RTQKZ7WOds5xXC6j4StZvNQY2/+1/jbqrUo2KhA==
+"@clinia/client-search@2.0.0-beta.2":
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@clinia/client-search/-/client-search-2.0.0-beta.2.tgz#d5308d9717abe10c7fdcca7ccce0286a8594897a"
+  integrity sha512-oOaOD7ognLoI5myLhd4+vCI5wnNeNq5OdAE4PXq7ZHQJzA+N4fCPO3kRn7II0wKkkf1NfeM0OSLVENw65QBqsQ==
   dependencies:
-    "@clinia/client-common" "^2.0.0-beta.1"
-    "@clinia/requester-common" "^2.0.0-beta.1"
-    "@clinia/transporter" "^2.0.0-beta.1"
+    "@clinia/client-common" "2.0.0-beta.2"
+    "@clinia/requester-common" "2.0.0-beta.2"
+    "@clinia/transporter" "2.0.0-beta.2"
 
-"@clinia/client-search@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/client-search/-/client-search-2.0.0-beta.1.tgz#c569349bc53033d61c11846b4a06e3cca184f2fb"
-  integrity sha512-ubSZNcNciEw/w+qaKmFTWcuyv6QlPb2PAHbC4dZAe3BmFM7XCxG1Ws9wHjtGeu28/5K0C33qIr9mdZmM51iMhA==
+"@clinia/logger-common@2.0.0-beta.2":
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@clinia/logger-common/-/logger-common-2.0.0-beta.2.tgz#54c4497b118a474c8c8a2c8876397ce28447fa34"
+  integrity sha512-jxbvNv04mMtggxIs7j4Y4ZVbyWHenQGysNifAhaKhMJ34/xnSD2DWcDFNBmqtlM29nr0kM5AVN6Do9HHETKFHw==
+
+"@clinia/logger-console@2.0.0-beta.2":
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@clinia/logger-console/-/logger-console-2.0.0-beta.2.tgz#67858b1aadc472b20f1ddce94d3610dfce5eb975"
+  integrity sha512-DWU6rYaVSfjMYWyOepgKIYFx5sMeLbI8W++EgdXwM7TTxM2SZlaUeeahQG8eV0VziHCW8SC3Ut9D4fzzuJKTyg==
   dependencies:
-    "@clinia/client-common" "^2.0.0-beta.1"
-    "@clinia/requester-common" "^2.0.0-beta.1"
-    "@clinia/transporter" "^2.0.0-beta.1"
+    "@clinia/logger-common" "2.0.0-beta.2"
 
-"@clinia/logger-common@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/logger-common/-/logger-common-2.0.0-beta.1.tgz#954c97042be24ded06bed7d930e4d036fe76126b"
-  integrity sha512-hom0IL7yQLJg937oa4XcBPQJVBeNw5mp3D76HCH3IIXn8GNMiMSZbomOefvGash0smbKYvkZsZj1l+k/eWONXw==
-
-"@clinia/logger-console@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/logger-console/-/logger-console-2.0.0-beta.1.tgz#22a3b9a14d2b53fe6913f2ea97b6cd76887dbba1"
-  integrity sha512-E4Y0xIzCu7XiEkhh6Y9fGSl+pGpg7oSTe2SF2Emb1V///P2w7qfodrwHn0z1cy9bMiqgUu+GJhKIRxEK9N/EQg==
+"@clinia/requester-browser-xhr@2.0.0-beta.2":
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@clinia/requester-browser-xhr/-/requester-browser-xhr-2.0.0-beta.2.tgz#c5d94db19eb7c4efb57dbcf0329a8c03c97eeacd"
+  integrity sha512-vNPS1jNsId/lMx3IaGy6GGXaful1QO8oau6o307YKzH/6ajws4KFFgYQrYSQ4OS3Ha5yyQRBodpaJCfPtcozvg==
   dependencies:
-    "@clinia/logger-common" "^2.0.0-beta.1"
+    "@clinia/requester-common" "2.0.0-beta.2"
 
-"@clinia/requester-browser-xhr@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/requester-browser-xhr/-/requester-browser-xhr-2.0.0-beta.1.tgz#311c5843d083790847e02cafce95f91f06465ee7"
-  integrity sha512-7U4qVz0nLRsfKsywJRjFRfcBB4/D0UGVzNJybbvJD9WQIiGapvtrAo03T7GVeQ5fud8Ry2nZTqG/Q9N11IAOuQ==
+"@clinia/requester-common@2.0.0-beta.2":
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@clinia/requester-common/-/requester-common-2.0.0-beta.2.tgz#6e33c7bae7cf017c3080dddf292efe658d0429af"
+  integrity sha512-vOs5Qm2fgHjQrJPUyF4Okiz+oV3e1IJ5vzJGf0dBDJDGQUVfCd9sjlTOIsqOgYixzwUooxZxVd9mrK0DQKZ3PA==
+
+"@clinia/requester-node-http@2.0.0-beta.2":
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@clinia/requester-node-http/-/requester-node-http-2.0.0-beta.2.tgz#44243258d2ed899c01d64d4e2f874d3e66f9d904"
+  integrity sha512-W1rjyDN2/Mv9tcE1H3gVaRb46pTdZAiWc3hlM1MO9T1C3rtVkAtq+9fWAfy6bjyIZvy3WvhoO2yzQC9pUyj/mA==
   dependencies:
-    "@clinia/requester-common" "^2.0.0-beta.1"
+    "@clinia/requester-common" "2.0.0-beta.2"
 
-"@clinia/requester-common@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/requester-common/-/requester-common-2.0.0-beta.1.tgz#a68022d42699bc85d027e9e42cf06a2a1288a6ae"
-  integrity sha512-Lx95sFuXCiowz8MzX5JjBYqXI0149bSJ5Mfrm3JNUDKSlGig5mcDbPreiyHiSQNHlItP7xMZwPZWBorgrT4gHQ==
-
-"@clinia/requester-node-http@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/requester-node-http/-/requester-node-http-2.0.0-beta.1.tgz#3d174c0073dc79acc63828762384849e73742832"
-  integrity sha512-C/UQTsMJOPA+uwpBQGIkvaS0FzpZknauW92RuLetlXLCRx+F5jEqywytE40z/xTllVFCeTJqTflP3MWxki9UEg==
+"@clinia/transporter@2.0.0-beta.2":
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@clinia/transporter/-/transporter-2.0.0-beta.2.tgz#02485ebd2cefea29095a7c26c791f9347878d964"
+  integrity sha512-IsB4KuaNe5Vjnd97rd68zxH1120JczgyzQRbwKnwpN5LdOqefsUaMFhNh85zLX6zWOBZ9f4xIiyTEVUFiYh3Tg==
   dependencies:
-    "@clinia/requester-common" "^2.0.0-beta.1"
-
-"@clinia/transporter@^2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@clinia/transporter/-/transporter-2.0.0-beta.1.tgz#a431101b7ee664ecbc34c34554238f1cc418582e"
-  integrity sha512-qG0f4Sqx+jiwu2daI3JxGKROtzt+nMsVrgODCblMHiOvCdzKRFDiHjkfzCeq8pewa0f0UPauPijQQg/JjuFBLg==
-  dependencies:
-    "@clinia/cache-common" "^2.0.0-beta.1"
-    "@clinia/logger-common" "^2.0.0-beta.1"
-    "@clinia/requester-common" "^2.0.0-beta.1"
+    "@clinia/cache-common" "2.0.0-beta.2"
+    "@clinia/logger-common" "2.0.0-beta.2"
+    "@clinia/requester-common" "2.0.0-beta.2"
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.3"
@@ -2449,23 +2440,22 @@ cli-width@^1.0.1:
   resolved "https://registry.yarnpkg.com/cli-width/-/cli-width-1.1.1.tgz#a4d293ef67ebb7b88d4a4d42c0ccf00c4d1e366d"
   integrity sha1-pNKT72frt7iNSk1CwMzwDE0eNm0=
 
-clinia@2.0.0-beta.1:
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/clinia/-/clinia-2.0.0-beta.1.tgz#f5fd9928dce93cf608103a5d99430d3b04b81c0c"
-  integrity sha512-TXuBwAwv43G5k5OxUvIGKSuzYLxalIXexpq58JcSS496+v4eJg+jGsSQyeixnMA0T3VyrB37DvewjFHQJtzdPw==
+clinia@^2.0.0-beta.2:
+  version "2.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/clinia/-/clinia-2.0.0-beta.2.tgz#08097ab76094ad8123b7ddaa509d6a41eb9ccc73"
+  integrity sha512-vtxKRLAxSq5INqR6ceCnqehsQXnRT4qrzbJ/u7TEOa8Km2vo74EKPz35m8m92+a7WtEQFqLN06HNX4fXR8mSZA==
   dependencies:
-    "@clinia/cache-browser-local-storage" "^2.0.0-beta.1"
-    "@clinia/cache-common" "^2.0.0-beta.1"
-    "@clinia/cache-in-memory" "^2.0.0-beta.1"
-    "@clinia/client-common" "^2.0.0-beta.1"
-    "@clinia/client-places" "^2.0.0-beta.1"
-    "@clinia/client-search" "^2.0.0-beta.1"
-    "@clinia/logger-common" "^2.0.0-beta.1"
-    "@clinia/logger-console" "^2.0.0-beta.1"
-    "@clinia/requester-browser-xhr" "^2.0.0-beta.1"
-    "@clinia/requester-common" "^2.0.0-beta.1"
-    "@clinia/requester-node-http" "^2.0.0-beta.1"
-    "@clinia/transporter" "^2.0.0-beta.1"
+    "@clinia/cache-browser-local-storage" "2.0.0-beta.2"
+    "@clinia/cache-common" "2.0.0-beta.2"
+    "@clinia/cache-in-memory" "2.0.0-beta.2"
+    "@clinia/client-common" "2.0.0-beta.2"
+    "@clinia/client-search" "2.0.0-beta.2"
+    "@clinia/logger-common" "2.0.0-beta.2"
+    "@clinia/logger-console" "2.0.0-beta.2"
+    "@clinia/requester-browser-xhr" "2.0.0-beta.2"
+    "@clinia/requester-common" "2.0.0-beta.2"
+    "@clinia/requester-node-http" "2.0.0-beta.2"
+    "@clinia/transporter" "2.0.0-beta.2"
 
 cliui@^2.1.0:
   version "2.1.0"

@@ -5,8 +5,7 @@ var SearchParameters = require('../../../src/SearchParameters');
 test('setQueryParameters should return the same instance if the options is falsey', function() {
   var state = new SearchParameters({
     facets: ['a', 'b'],
-    ignorePlurals: false,
-    attributesToHighlight: ''
+    highlightProperties: ''
   });
 
   expect(state).toBe(state.setQueryParameters());
@@ -17,31 +16,26 @@ test('setQueryParameters should return the same instance if the options is false
 test('setQueryParameters should be able to mix an actual state with a new set of parameters', function() {
   var state0 = new SearchParameters({
     facets: ['a', 'b'],
-    ignorePlurals: false,
-    attributesToHighlight: ''
+    highlightProperties: ''
   });
 
   var params = {
     facets: ['a', 'c'],
-    attributesToHighlight: ['city', 'country'],
-    replaceSynonymsInHighlight: true
+    highlightProperties: ['city', 'country']
   };
 
   var state1 = state0.setQueryParameters(params);
 
   expect(state1).toEqual(new SearchParameters({
     facets: ['a', 'c'],
-    ignorePlurals: false,
-    attributesToHighlight: ['city', 'country'],
-    replaceSynonymsInHighlight: true
+    highlightProperties: ['city', 'country']
   }));
 });
 
 test('setQueryParameters should add unknown properties', function() {
   var state0 = new SearchParameters({
     facets: ['a', 'b'],
-    ignorePlurals: false,
-    attributesToHighlight: ''
+    highlightProperties: ''
   });
 
   var params = {
@@ -53,8 +47,7 @@ test('setQueryParameters should add unknown properties', function() {
 
   expect(state1).toEqual(new SearchParameters({
     facets: ['a', 'b'],
-    ignorePlurals: false,
-    attributesToHighlight: '',
+    highlightProperties: '',
     unknow1: ['a', 'c'],
     facet: ['city', 'country']
   }));

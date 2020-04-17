@@ -57,13 +57,13 @@ function getIndices(properties) {
  * @param {array.<object>} results the results from clinia client
  * @example <caption>SearchResults of the first query in
  {
-   "index": "health_facility"
+   "index": "clinic"
    "query": "",
    "page": 0,
    "perPage": 20,
    "numPages": 50,
    "total": 8904,
-   "processingTimeMS": 2,
+   "took": 2,
    "facets": [
      {
        "name": "type",
@@ -84,11 +84,39 @@ function getIndices(properties) {
        "exhaustive": false
      }
    ]
-   "records": [
+   "hits": [
      {
-       "id": "18383",
-       "type": "Pharmacy",
-       "name": "Jean Coutu"
+       "id": "b1259901-cbd9-422b-8144-b24d84126794",
+        "_geoPoint": {
+            "lon": -73.5639752,
+            "lat": 45.5287923
+        },
+        "name": "Clinique de Dermatologie - Clinique 1851",
+        "phones": [
+            {
+                "number": "+15145218333",
+                "extension": null,
+                "type": "MAIN"
+            },
+            {
+                "number": "+15145214175",
+                "extension": null,
+                "type": "FAX"
+            }
+        ],
+        "services": {
+            "en": [
+                "Dermatology"
+            ],
+            "fr": [
+                "Dermatologie"
+            ]
+        },
+        "_highlight": {
+            "name": {
+                "value": "<strong>Clinique</strong> de Dermatologie - <strong>Clinique</strong> <strong>1851</strong>"
+            }
+        }
      }
    ]
  }
@@ -106,17 +134,17 @@ function SearchResults(state, results) {
   this.query = mainSubResponse.meta.query;
 
   /**
-   * all the records that match the search parameters. It also contains _highlightResult,
-   * which describe which and how the attributes are matched.
+   * all the hits that match the search parameters. It also contains _highlight,
+   * which describe which and how the properties are matched.
    * @member {object[]}
    */
-  this.records = mainSubResponse.records;
+  this.hits = mainSubResponse.hits;
 
   /**
    * index where the results come from
    * @member {string}
    */
-  this.index = mainSubResponse.index;
+  this.index = mainSubResponse.meta.index;
 
   /**
    * number of hits per page requested
@@ -143,25 +171,13 @@ function SearchResults(state, results) {
   this.page = mainSubResponse.meta.page;
 
   /**
-   * True if the counts of the facets is exhaustive
-   * @member {boolean}
-   */
-  this.exhaustiveFacetsCount = mainSubResponse.meta.exhaustiveFacetsCount;
-
-  /**
-   * True if the number of hits is exhaustive
-   * @member {boolean}
-   */
-  this.exhaustiveTotalRecords = mainSubResponse.meta.exhaustiveTotalRecords;
-
-  /**
    * sum of the processing time of all the queries
    * @member {number}
    */
-  this.processingTimeMS = results.reduce(function(sum, result) {
-    return result.meta.processingTimeMS === undefined
+  this.took = results.reduce(function(sum, result) {
+    return result.meta.took === undefined
       ? sum
-      : sum + result.meta.processingTimeMS;
+      : sum + result.meta.took;
   }, 0);
 
   /**
@@ -302,21 +318,6 @@ function SearchResults(state, results) {
 }
 
 /**
- * Get a facet object with its name
- * @deprecated
- * @param {string} name name of the faceted property
- * @return {SearchResults.Facet} the facet object
- */
-SearchResults.prototype.getFacetByName = function(name) {
-  function predicate(facet) {
-    return facet.name === name;
-  }
-
-  return find(this.facets, predicate) ||
-    find(this.disjunctiveFacets, predicate);
-};
-
-/**
  * Get the facet values of a specified property from a SearchResults object.
  * @private
  * @param {SearchResults} results the search results to search in
@@ -453,6 +454,21 @@ SearchResults.prototype.getRefinements = function() {
   Object.keys(state.disjunctiveFacetsRefinements).forEach(function(propertyName) {
     state.disjunctiveFacetsRefinements[propertyName].forEach(function(name) {
       res.push(getRefinement(state, 'disjunctive', propertyName, name, results.disjunctiveFacets));
+    });
+  });
+
+  Object.keys(state.numericRefinements).forEach(function(attributeName) {
+    var operators = state.numericRefinements[attributeName];
+    Object.keys(operators).forEach(function(operator) {
+      operators[operator].forEach(function(value) {
+        res.push({
+          type: 'numeric',
+          attributeName: attributeName,
+          name: value,
+          numericValue: value,
+          operator: operator
+        });
+      });
     });
   });
 

@@ -3,36 +3,36 @@
 var SearchParameters = require('../../../src/SearchParameters');
 var SearchResults = require('../../../src/SearchResults');
 
-test('processingTime should be the sum of all individual times', function() {
+test('took should be the sum of all individual times', function() {
   var result = new SearchResults(new SearchParameters(), [
     {
       meta: {
-        processingTimeMS: 1
+        took: 1
       }
     },
     {
       meta: {
-        processingTimeMS: 1
+        took: 1
       }
     }
   ]);
 
-  expect(result.processingTimeMS).toBe(2);
+  expect(result.took).toBe(2);
 });
 
-test('processingTime should ignore undefined', function() {
+test('took should ignore undefined', function() {
   var result = new SearchResults(new SearchParameters(), [
     {
       meta: {
-        processingTimeMS: undefined
+        took: undefined
       }
     },
     {
       meta: {
-        processingTimeMS: 1
+        took: 1
       }
     }
   ]);
 
-  expect(result.processingTimeMS).toBe(1);
+  expect(result.took).toBe(1);
 });

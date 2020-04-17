@@ -18,10 +18,10 @@ test('setqueryparameter should add non-existing parameter', function() {
     facets: ['facet']
   });
 
-  var newValue = ['attributesToHighlight'];
-  var newsp = sp.setQueryParameter('attributesToHighlight', newValue);
+  var newValue = ['highlightProperties'];
+  var newsp = sp.setQueryParameter('highlightProperties', newValue);
 
-  expect(newsp.attributesToHighlight).toEqual(newValue);
+  expect(newsp.highlightProperties).toEqual(newValue);
 });
 
 test('setQueryParameter should not create a new instance if the update is non effective', function() {

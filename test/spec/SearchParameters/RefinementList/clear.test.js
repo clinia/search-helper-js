@@ -8,21 +8,35 @@ test('When removing all refinements of a state without any', function() {
   expect(clear(initialRefinementList)).toBe(initialRefinementList);
 });
 
-test('When removing refinements of a specific attribute, and there are no refinements for this attribute', function() {
+test('When removing refinements of a specific property, and there are no refinements for this property', function() {
   var initialRefinementList = {
-    'attribute': ['test']
+    'property': ['test']
   };
 
   expect(clear(initialRefinementList, 'notThisAttribute')).toEqual(initialRefinementList);
 });
 
+test('When removing refinements of a specific property, and another refinement is a substring of this property', function() {
+  var initialRefinementList = {
+    'Brand': ['HP'],
+    'CPU type': ['Core i5'],
+    'Motherboard CPU type': ['Intel Core X']
+  };
+  var expectedRefinementList = {
+    'Brand': ['HP'],
+    'CPU type': ['Core i5']
+  };
+
+  expect(clear(initialRefinementList, 'Motherboard CPU type')).toEqual(expectedRefinementList);
+});
+
 test('When removing numericRefinements using a function, and there are no changes', function() {
   var initialRefinementList = {
-    'attribute': ['test']
+    'property': ['test']
   };
 
   function clearNothing() {return false;}
-  function clearUndefinedAttribute(value, attribute) {return attribute === 'category';}
+  function clearUndefinedAttribute(value, property) {return property === 'category';}
   function clearUndefinedValue(value) {return value === 'toast';}
 
   expect(clear(initialRefinementList, clearNothing, 'facet')).toBe(initialRefinementList);
@@ -32,8 +46,8 @@ test('When removing numericRefinements using a function, and there are no change
 
 test('calling clear on a empty refinement removes it', function() {
   var initialRefinementList = {
-    'attribute': []
+    'property': []
   };
 
-  expect(clear(initialRefinementList, 'attribute')).toEqual({});
+  expect(clear(initialRefinementList, 'property')).toEqual({});
 });

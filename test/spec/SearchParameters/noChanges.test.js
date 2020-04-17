@@ -82,6 +82,18 @@ test('[No changes] removeDisjunctiveFacetRefinement', function() {
   expect(state.removeDisjunctiveFacetRefinement('facet', 'value')).toBe(state);
 });
 
+test('[No changes] addNumericRefinement', function() {
+  var state = SearchParameters.make({}).addNumericRefinement('property', '>', 0);
+
+  expect(state.addNumericRefinement('property', '>', 0)).toBe(state);
+});
+
+test('[No changes] removeNumericRefinement', function() {
+  var state = SearchParameters.make({});
+
+  expect(state.removeNumericRefinement('property', '>')).toBe(state);
+});
+
 test('[No changes] setQueryParameter', function() {
   var state = SearchParameters.make({
     queryType: 'prefix_last'

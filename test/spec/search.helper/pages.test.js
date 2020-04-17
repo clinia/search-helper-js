@@ -58,6 +58,9 @@ test('pages should be reset if the mutation might change the number of pages', f
     ['clearRefinements', bind(helper.clearRefinements, helper)],
     ['setQuery', bind(helper.setQuery, helper, 'query')],
 
+    ['addNumericRefinement', bind(helper.addNumericRefinement, helper, 'facet', '>', '2')],
+    ['removeNumericRefinement', bind(helper.removeNumericRefinement, helper, 'facet', '>')],
+
     ['addFacetExclusion', bind(helper.addFacetExclusion, helper, 'facet1', 'val2')],
     ['removeFacetExclusion', bind(helper.removeFacetExclusion, helper, 'facet1', 'val2')],
 

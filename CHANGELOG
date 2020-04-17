@@ -1,3 +1,14 @@
+2.0.0-beta.1 - 2020-04-17
+ * chore: changelog https://github.com/clinia/search-helper-js/commit/1d696226d37dc4e387cd982f49380c0f2dc982af
+ * chore(deps-dev): bump handlebars from 4.1.0 to 4.3.0 (#3) https://github.com/clinia/search-helper-js/commit/ac35bee68ac325b0afeffb6c3645c40952191d7a, closes https://github.com/clinia/search-helper-js/issues/3
+ * 2.0.0-beta.0 https://github.com/clinia/search-helper-js/commit/5bae3542ce80c90e2527381e74f1c8f4ed27f573
+ * doc: add circle-ci build status https://github.com/clinia/search-helper-js/commit/6937284b929d43e6b1629aa896b829d5474cad31
+ * doc: use image shields for build image https://github.com/clinia/search-helper-js/commit/52dac080515f72b9bafa124ab330f179e840fc7d
+ * feat: add readme (#4) https://github.com/clinia/search-helper-js/commit/176e7ba4fa8481fc07a15272727cef08417aa1c7, closes https://github.com/clinia/search-helper-js/issues/4
+ * feat: added facets and facet refinements capabilities & added compatibility with clinia v2 https://github.com/clinia/search-helper-js/commit/ce3caace202288280d7c91cba4b50f1f614461e6
+ * feat: support numeric filters https://github.com/clinia/search-helper-js/commit/d62f382062d9d055d5efd0aada78368da4031822
+ * feat: typescript definitions https://github.com/clinia/search-helper-js/commit/1674fca56d0275ea1dfe8a038efc08305b84f100
+
 2.0.0-beta.0 - 2020-02-12
  * chore(deps-dev): bump handlebars from 4.1.0 to 4.3.0 (#3) https://github.com/clinia/search-helper-js/commit/ac35bee68ac325b0afeffb6c3645c40952191d7a, closes https://github.com/clinia/search-helper-js/issues/3
  * chore: changelog https://github.com/clinia/search-helper-js/commit/1d696226d37dc4e387cd982f49380c0f2dc982af

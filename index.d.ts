@@ -1,14 +1,9 @@
 import {
+  SearchClient,
   SearchOptions,
   SearchResponse
 } from '@clinia/client-search';
 import { EventEmitter } from 'events';
-
-type DummySearchClientV2 = {
-  readonly addCliniaAgent: (segment: string, version?: string) => void;
-};
-
-type SearchClient = Pick<Client, 'search'>;
 
 /**
  * The searchHelper module is the function that will let its
@@ -571,12 +566,17 @@ declare namespace searchHelper {
 
   namespace SearchParameters {
     type FacetList = string[];
+
+    type OperatorList = {
+      [k in Operator]?: Array<number | number[]>;
+    };
+
+    type Operator = '=' | '>' | '>=' | '<' | '<=' | '!=';
   }
 
-  export class SearchResults<T = any>
-    implements Omit<SearchResponse<T>, 'facets' | 'params'> {
+  export class SearchResults<T = any> {
     
-      /**
+    /**
      * query used to generate the results
      */
     query: string;
@@ -584,7 +584,7 @@ declare namespace searchHelper {
     /**
      * all the records that match the search parameters. 
      */
-    records: (T & {
+    hits: (T & {
       readonly id: string;
     })[];
 
@@ -616,7 +616,7 @@ declare namespace searchHelper {
     /**
      * sum of the processing time of all the queries
      */
-    processingTimeMS: number;
+    took: number;
 
     /**
      * The position.
@@ -629,16 +629,6 @@ declare namespace searchHelper {
      * @example "126792922",
      */
     automaticRadius: string;
-
-    /**
-     * True if the counts of the facets is exhaustive
-     */
-    exhaustiveFacetsCount: boolean;
-
-    /**
-     * True if the number of records is exhaustive
-     */
-    exhaustiveTotalRecords: boolean;
 
     /**
      * queryID is the unique identifier of the query used to generate the current search results.
@@ -660,14 +650,6 @@ declare namespace searchHelper {
     _state: SearchParameters;
 
     constructor(state: SearchParameters, results: SearchResponse<T>[]);
-
-    /**
-     * Get a facet object with its name
-     * @deprecated
-     * @param name name of the faceted property
-     * @return  the facet object
-     */
-    getFacetByName(name: string): SearchResults.Facet;
 
     /**
      * Get a the list of values for a given facet property. Those values are sorted
@@ -717,7 +699,7 @@ declare namespace searchHelper {
     getFacetValues(
       attribute: string,
       opts: any
-    ): SearchResults.FacetValue[] | SearchResults.HierarchicalFacet | undefined;
+    ): SearchResults.FacetValue[] | undefined;
 
     /**
      * Returns the facet stats if attribute is defined and the facet contains some.

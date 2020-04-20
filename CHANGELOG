@@ -1,3 +1,6 @@
+2.0.0-beta.2 - 2020-04-20
+ * fix(tsd): search results missing hits & search parameters operator https://github.com/clinia/search-helper-js/commit/7f677686d9d84eba001ee20a838bcc9a1b67c9d5
+
 2.0.0-beta.1 - 2020-04-17
  * chore: changelog https://github.com/clinia/search-helper-js/commit/1d696226d37dc4e387cd982f49380c0f2dc982af
  * chore(deps-dev): bump handlebars from 4.1.0 to 4.3.0 (#3) https://github.com/clinia/search-helper-js/commit/ac35bee68ac325b0afeffb6c3645c40952191d7a, closes https://github.com/clinia/search-helper-js/issues/3

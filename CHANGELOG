@@ -1,3 +1,6 @@
+2.0.0-beta.4 - 2020-04-24
+ * fix(requestBuilder): disjunctive facets builder sending facet parameter as string instead of array<string> https://github.com/clinia/search-helper-js/commit/61267ee53b4314914cbfdafb21aa9a3418806c31
+
 2.0.0-beta.3 - 2020-04-24
  * feat(search-results): get facet by name https://github.com/clinia/search-helper-js/commit/908c0cac7b7e401353a91f7abafc8de545a39e88
 

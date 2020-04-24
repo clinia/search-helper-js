@@ -75,7 +75,7 @@ var requestBuilder = {
       clickAnalytics: false
     };
 
-    additionalParams.facets = facet;
+    additionalParams.facets = [facet];
 
     if (numericFilters.length > 0) {
       additionalParams.numericFilters = numericFilters;

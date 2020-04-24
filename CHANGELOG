@@ -1,3 +1,6 @@
+2.0.0-beta.3 - 2020-04-24
+ * feat(search-results): get facet by name https://github.com/clinia/search-helper-js/commit/908c0cac7b7e401353a91f7abafc8de545a39e88
+
 2.0.0-beta.2 - 2020-04-20
  * fix(tsd): search results missing hits & search parameters operator https://github.com/clinia/search-helper-js/commit/7f677686d9d84eba001ee20a838bcc9a1b67c9d5
 

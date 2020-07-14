@@ -1,6 +1,6 @@
 {
   "name": "@clinia/search-helper",
-  "version": "2.0.0-beta.4",
+  "version": "2.0.0",
   "description": "Helper for implementing advanced search features with clinia",
   "main": "index.js",
   "types": "index.d.ts",

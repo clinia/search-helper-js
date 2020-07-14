@@ -1,3 +1,6 @@
+2.0.0 - 2020-07-14
+ * feat: add exhaustiveTotal to SearchResults https://github.com/clinia/search-helper-js/commit/cbbe360b4f7503687169b3a2e62421c2223c6185
+
 2.0.0-beta.4 - 2020-04-24
  * fix(requestBuilder): disjunctive facets builder sending facet parameter as string instead of array<string> https://github.com/clinia/search-helper-js/commit/61267ee53b4314914cbfdafb21aa9a3418806c31
 

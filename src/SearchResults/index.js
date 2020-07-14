@@ -159,6 +159,12 @@ function SearchResults(state, results) {
   this.total = mainSubResponse.meta.total;
 
   /**
+   * true if the number of hits is exhaustive
+   * @member {boolean}
+   */
+  this.exhaustiveTotal = mainSubResponse.meta.exhaustiveTotal;
+
+  /**
    * total number of pages with respect to the number of hits per page and the total number of hits
    * @member {number}
    */
